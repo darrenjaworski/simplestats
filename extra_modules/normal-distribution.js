@@ -1,4 +1,8 @@
-var normalDistribution = function(values) {
+var normalDistribution = function() {
+
+  var values = d3.range(100).map(function(i) {
+      return ~~d3.random.normal(50, 15)();
+    });
 
   var margin = {top: 10, right: 30, bottom: 30, left: 30},
     width = $(".page-content").width() - margin.left - margin.right,
@@ -49,12 +53,25 @@ var normalDistribution = function(values) {
     .attr("transform", "translate(0," + height + ")")
     .call(xAxis);
 
+  var display = svg.append("g")
+    .attr("class", "central-tendency")
+    .attr("transform", "translate(0,0)")
+
+  display.append("text")
+    .attr("class", "mean")
+    .text("mu: " + d3.mean(values));
+
+  display.append("text")
+    .attr("class", "standard-deviation")
+    .attr("transform", "translate(0,15)")
+    .text("sigma: " + d3.deviation(values));
+
   d3.select("#normalPoints").on("input", function(){
 
     $('.normal-dist-label span').html(this.value);
 
     var newNormal = d3.range(this.value).map(function(i) {
-        return ~~d3.random.normal(50, 10)();
+        return ~~d3.random.normal(50, 15)();
       });
 
     var newData = d3.layout.histogram()
@@ -62,20 +79,26 @@ var normalDistribution = function(values) {
 
     var bar = svg.selectAll(".bar").data(newData);
     var rect = svg.selectAll("rect");
+    var stdDev = svg.select(".standard-deviation");
+    var mean = svg.select(".mean");
+    var duration = 100;
 
     y.domain([0, d3.max(newData, function(d) {return d.y; })])
 
-    bar.transition().duration(100).attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
+    bar.transition().duration(duration).attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
 
     bar.select("rect")
       .transition()
-      .duration(100)
+      .duration(duration)
       .attr("x", 1)
       .attr("width", x(data[0].dx) - 1)
       .attr("height", function(d) { return height - y(d.y); });
 
     bar.select("text")
       .text(function(d) { return d.y > 0 ? d.y : ""; });
+
+    stdDev.text("sigma: " + d3.deviation(newNormal));
+    mean.text("mu: " + d3.mean(newNormal));
 
   });
 

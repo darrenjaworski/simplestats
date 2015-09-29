@@ -13,56 +13,112 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-statistics/1.0.0/simple_statistics.min.js"></script>
 
   <!-- material design lite -->
-  <link rel="stylesheet" href="/bower_components/material-design-lite/material.min.css">
+  <link rel="stylesheet" href="https://storage.googleapis.com/code.getmdl.io/1.0.4/material.blue_grey-blue.min.css" />
   <script src="/bower_components/material-design-lite/material.min.js"></script>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
   <style>
-  .mdl-grid {
-    max-width: 50em;
+  .page-content {
+    max-width: 43em;
+    margin: auto;
+    padding: 0 1.5em;
+  }
+  section {
+    padding: 0 0 3em;
+  }
+  p, li {
+    font-size: 16px;
+  }
+
+  .bar rect {
+    fill: steelblue;
+    shape-rendering: crispEdges;
+  }
+
+  .bar text {
+    fill: #000;
+    font: 10px sans-serif;
+  }
+
+  .axis path, .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
   }
   </style>
 
 </head>
 <body>
 
-  <main class="mdl-grid">
-    <section>
-      <h1>simple statistics and d3</h1>
-      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Perferendis placeat neque id totam autem cupiditate, dignissimos molestiae quam delectus voluptatibus alias, minus dolor, laudantium odio! Quaerat consequatur, in ut inventore!</p>
-      <ul>
-        <li>
-          <a href="#descriptive-statistics">descriptive statistics</a>
-        </li>
-      </ul>
-    </section>
-    <section id="descriptive-statistics">
-      <h2>descriptive statistics</h2>
-      <p>Let's start with a simple dataset of 15 random numbers between 0 and 50.</p>
-      <p class="simple-dataset"></p>
-      <h3>mean</h3>
-      <p>A mean is commonly referred to as an average. It is the sum of the points divided by the number of points.</p>
-      <p class="mean"></p>
-      <h3>median</h3>
-      <p>A median is the middle point of a dataset. Half the points in the set lie before the median and half the points in the set lie after the median.</p>
-      <p class="median"></p>
-      <h3>mode</h3>
-      <p>The mode is the most commonly occurring point in a dataset.</p>
-      <p class="mode"></p>
-      <h3>range</h3>
-      <p>The range is the maximum point in a dataset minus the minimum point in a dataset. In other terms, what does the dataset span?</p>
-      <p class="range"></p>
-      <h3>standard deviation</h3>
-      <p class="standard-deviation"></p>
-      <h3>box and whisker plot</h3>
-      <p>A box and whisker plot is a representation of a dataset showing multiple elements of that dataset.</p>
-      <div class="box-whisker"></div>
-    </section>
-    <section>
-      <h2>inferential statistics</h2>
-    </section>
+  <!-- No header, and the drawer stays open on larger screens (fixed drawer). -->
+  <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer">
+    <div class="mdl-layout__drawer">
+      <span class="mdl-layout-title">simple statistics</span>
+      <nav class="mdl-navigation">
+        <a class="mdl-navigation__link" href="#descriptive-statistics">descriptive statistics</a>
+        <a class="mdl-navigation__link" href="#inferential statistics">inferential statistics</a>
+      </nav>
+    </div>
 
-  </main>
+    <main class="mdl-layout__content">
+      <div class="page-content">
+
+        <section>
+          <h1>simple statistics and d3</h1>
+          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Perferendis placeat neque id totam autem cupiditate, dignissimos molestiae quam delectus voluptatibus alias, minus dolor, laudantium odio! Quaerat consequatur, in ut inventore!</p>
+          <ul>
+            <li>
+              <a href="#descriptive-statistics">descriptive statistics</a>
+            </li>
+          </ul>
+        </section>
+        <section id="descriptive-statistics">
+          <h2>descriptive statistics <a href="#descriptive-statistics">#</a></h2>
+          <p>Descriptive statistics are exactly what you think. They describe what the data is or shows. They do not make a judgement about the data. They do not give any larger inference to a population from a sample. They describe a tendency of the data. </p>
+          <p>Let's start with a simple dataset of 15 random numbers between 0 and 50.</p>
+          <p class="simple-dataset"></p>
+
+          <h3>mean</h3>
+          <p>A mean is commonly referred to as an average. It is the sum of the points divided by the number of points.</p>
+          <p class="mean"></p>
+
+          <h3>median</h3>
+          <p>A median is the middle point of a dataset. Half the points in the set lie before the median and half the points in the set lie after the median.</p>
+          <p class="median"></p>
+
+          <h3>mode</h3>
+          <p>The mode is the most commonly occurring point in a dataset.</p>
+          <p class="mode"></p>
+
+          <h3>range</h3>
+          <p>The range is the maximum point in a dataset minus the minimum point in a dataset. In other terms, what does the dataset span?</p>
+          <p class="range"></p>
+
+          <h3>standard deviation</h3>
+          <p>The standard deviation is a measure of the amount of variation in a set of data.</p>
+          <p class="standard-deviation"></p>
+
+          <h3>box and whisker plot</h3>
+          <p>A box and whisker plot is a representation of a dataset showing multiple elements of that dataset.</p>
+          <div class="box-whisker"></div>
+
+          <h3>Normal Distribution</h3>
+          <p>What is a normal distribution? Consider the hypothetical results of a biochemistry midterm exam below. Shown as a histogram with text scores 1-100 fitting into vertical bars. The higher the bar the more test scores were in that range of scores.</p>
+          <p>
+            <label class="normal-dist-label" for="numberOfPoints">number of scores on the exam: <span>100</span></label>
+            <input id="normalPoints" class="mdl-slider mdl-js-slider" type="range" min="10" max="1000" value="100" tabindex="0" name="numberOfPoints"/>
+          </p>
+          <svg class="normal-distribution"></svg>
+        </section>
+        <section>
+          <h2>inferential statistics <a href="#inferential-statistics">#</a></h2>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+
 
   <!-- jquery -->
   <script src="/bower_components/jquery/dist/jquery.min.js"></script>
