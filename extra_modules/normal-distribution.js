@@ -1,12 +1,12 @@
 var normalDistribution = function() {
 
   var values = d3.range(100).map(function(i) {
-      return ~~d3.random.normal(50, 15)();
+      return ~~d3.random.normal(50, 13)();
     });
 
-  var margin = {top: 10, right: 30, bottom: 30, left: 30},
+  var margin = {top: 30, right: 30, bottom: 30, left: 30},
     width = $(".page-content").width() - margin.left - margin.right,
-    height = $(".page-content").width() / 2 - margin.top - margin.bottom,
+    height = $(".page-content").width() / 1.75 - margin.top - margin.bottom,
     binTicks = 20;
 
   var x = d3.scale.linear()
@@ -63,7 +63,7 @@ var normalDistribution = function() {
 
   display.append("text")
     .attr("class", "standard-deviation")
-    .attr("transform", "translate(0,15)")
+    .attr("transform", "translate(0,17)")
     .text("sigma: " + d3.deviation(values));
 
   d3.select("#normalPoints").on("input", function(){
@@ -71,7 +71,7 @@ var normalDistribution = function() {
     $('.normal-dist-label span').html(this.value);
 
     var newNormal = d3.range(this.value).map(function(i) {
-        return ~~d3.random.normal(50, 15)();
+        return ~~d3.random.normal(50, 13)();
       });
 
     var newData = d3.layout.histogram()
@@ -81,7 +81,7 @@ var normalDistribution = function() {
     var rect = svg.selectAll("rect");
     var stdDev = svg.select(".standard-deviation");
     var mean = svg.select(".mean");
-    var duration = 100;
+    var duration = 300;
 
     y.domain([0, d3.max(newData, function(d) {return d.y; })])
 

@@ -15,6 +15,6 @@ d3.select('.range').html(d3.max(simpleDataset) - d3.min(simpleDataset));
 d3.select('.mode').html(ss.mode(simpleDataset));
 d3.select('.standard-deviation').html(d3.deviation(simpleDataset))
 
-var normal = require('./extra_modules/normal-distribution.js');
+var boxWhisker = require('./extra_modules/box-whisker.js')(simpleDataset);
 
-normal();
+var normal = require('./extra_modules/normal-distribution.js')();

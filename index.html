@@ -30,19 +30,50 @@
     font-size: 16px;
   }
 
+  .box {
+    font: 14px sans-serif;
+  }
+
+  .box .median {
+    stroke: #fff !important;
+    stroke-width: 1.5px !important;
+  }
+
+  .box line,
+  .box rect,
+  .box circle {
+    fill: steelblue;
+    stroke: rgba(0,0,0,.87);
+    stroke-width: 1px;
+  }
+
+  .box .center {
+    stroke-dasharray: 3,3;
+  }
+
+  .box .outlier {
+    fill: none;
+    stroke: rgba(0,0,0,.87);
+  }
+
+  .central-tendency text {
+    font: 14px sans-serif;
+    fill: rgba(0,0,0,.87);
+  }
+
   .bar rect {
     fill: steelblue;
     shape-rendering: crispEdges;
   }
 
   .bar text {
-    fill: #000;
-    font: 10px sans-serif;
+    fill: rgba(0,0,0,.87);
+    font: 12px sans-serif;
   }
 
   .axis path, .axis line {
     fill: none;
-    stroke: #000;
+    stroke: rgba(0,0,0,.87);
     shape-rendering: crispEdges;
   }
   </style>
@@ -56,7 +87,7 @@
       <span class="mdl-layout-title">simple statistics</span>
       <nav class="mdl-navigation">
         <a class="mdl-navigation__link" href="#descriptive-statistics">descriptive statistics</a>
-        <a class="mdl-navigation__link" href="#inferential statistics">inferential statistics</a>
+        <a class="mdl-navigation__link" href="#inferential-statistics">inferential statistics</a>
       </nav>
     </div>
 
@@ -100,9 +131,9 @@
 
           <h3>box and whisker plot</h3>
           <p>A box and whisker plot is a representation of a dataset showing multiple elements of that dataset.</p>
-          <div class="box-whisker"></div>
+          <svg class="box"></svg>
 
-          <h3>Normal Distribution</h3>
+          <h3>normal distribution</h3>
           <p>What is a normal distribution? Consider the hypothetical results of a biochemistry midterm exam below. Shown as a histogram with text scores 1-100 fitting into vertical bars. The higher the bar the more test scores were in that range of scores.</p>
           <p>
             <label class="normal-dist-label" for="numberOfPoints">number of scores on the exam: <span>100</span></label>
