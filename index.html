@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- d3 -->
+  <script src="/bower_components/d3/d3.min.js"></script>
+
+  <!-- box.js -->
+  <script src="/extra_modules/box.js"></script>
+
+  <!-- simple statistics -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-statistics/1.0.0/simple_statistics.min.js"></script>
+
+  <!-- material design lite -->
+  <link rel="stylesheet" href="/bower_components/material-design-lite/material.min.css">
+  <script src="/bower_components/material-design-lite/material.min.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+  <style>
+  .mdl-grid {
+    max-width: 50em;
+  }
+  </style>
+
+</head>
+<body>
+
+  <main class="mdl-grid">
+    <section>
+      <h1>simple statistics and d3</h1>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Perferendis placeat neque id totam autem cupiditate, dignissimos molestiae quam delectus voluptatibus alias, minus dolor, laudantium odio! Quaerat consequatur, in ut inventore!</p>
+      <ul>
+        <li>
+          <a href="#descriptive-statistics">descriptive statistics</a>
+        </li>
+      </ul>
+    </section>
+    <section id="descriptive-statistics">
+      <h2>descriptive statistics</h2>
+      <p>Let's start with a simple dataset of 15 random numbers between 0 and 50.</p>
+      <p class="simple-dataset"></p>
+      <h3>mean</h3>
+      <p>A mean is commonly referred to as an average. It is the sum of the points divided by the number of points.</p>
+      <p class="mean"></p>
+      <h3>median</h3>
+      <p>A median is the middle point of a dataset. Half the points in the set lie before the median and half the points in the set lie after the median.</p>
+      <p class="median"></p>
+      <h3>mode</h3>
+      <p>The mode is the most commonly occurring point in a dataset.</p>
+      <p class="mode"></p>
+      <h3>range</h3>
+      <p>The range is the maximum point in a dataset minus the minimum point in a dataset. In other terms, what does the dataset span?</p>
+      <p class="range"></p>
+      <h3>standard deviation</h3>
+      <p class="standard-deviation"></p>
+      <h3>box and whisker plot</h3>
+      <p>A box and whisker plot is a representation of a dataset showing multiple elements of that dataset.</p>
+      <div class="box-whisker"></div>
+    </section>
+    <section>
+      <h2>inferential statistics</h2>
+    </section>
+
+  </main>
+
+  <!-- jquery -->
+  <script src="/bower_components/jquery/dist/jquery.min.js"></script>
+
+  <!-- page script -->
+  <script src="bundle.js"></script>
+</body>
+</html>

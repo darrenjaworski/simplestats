@@ -1,0 +1,22 @@
+'use strict';
+
+var ss = require('simple-statistics');
+
+var simpleDataset = d3.range(15).map(function(i) {
+    return ~~(Math.random() * 50);
+  }).sort(function(a, b){
+    return a - b;
+  });
+
+var normalDist = d3.range(100).map(function(i){
+    return ~~d3.random.normal(50, 10)();
+  });
+
+d3.select('.simple-dataset').html(simpleDataset);
+d3.select('.mean').html(d3.mean(simpleDataset));
+d3.select('.median').html(d3.median(simpleDataset));
+d3.select('.range').html(d3.max(simpleDataset) - d3.min(simpleDataset));
+d3.select('.mode').html(ss.mode(simpleDataset));
+d3.select('.standard-deviation').html(d3.deviation(simpleDataset))
+
+console.log(normalDist);
