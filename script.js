@@ -8,7 +8,7 @@ var simpleDataset = d3.range(15).map(function(i) {
     return a - b;
   });
 
-var normalDist = d3.range(100).map(function(i){
+var normalDist = d3.range(1000).map(function(i) {
     return ~~d3.random.normal(50, 10)();
   });
 
@@ -19,4 +19,6 @@ d3.select('.range').html(d3.max(simpleDataset) - d3.min(simpleDataset));
 d3.select('.mode').html(ss.mode(simpleDataset));
 d3.select('.standard-deviation').html(d3.deviation(simpleDataset))
 
-console.log(normalDist);
+var normal = require('./extra_modules/normal-distribution.js');
+
+normal(normalDist);
