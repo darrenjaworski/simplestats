@@ -79,6 +79,7 @@
       <span class="mdl-layout-title">simple statistics</span>
       <nav class="mdl-navigation">
         <a class="mdl-navigation__link" href="#descriptive-statistics">descriptive statistics</a>
+        <a class="mdl-navigation__link" href="#sampling">sampling</a>
         <a class="mdl-navigation__link" href="#inferential-statistics">inferential statistics</a>
       </nav>
     </div>
@@ -95,6 +96,9 @@
             </li>
             <li>
               <a href="#inferential-statistics">inferential statistics</a>
+            </li>
+            <li>
+              <a href="#sampling">sampling</a>
             </li>
           </ul>
         </section>
@@ -139,12 +143,25 @@
           <svg class="box"></svg>
 
           <h3>normal distribution</h3>
-          <p>What is a normal distribution? Consider the hypothetical results of a biochemistry midterm exam below. Shown as a histogram with text scores 1-100 fitting into vertical bars. The higher the bar the more test scores were in that range of scores.</p>
+          <p>What is a normal distribution? Consider the hypothetical results of a biochemistry midterm exam below. Shown as a histogram with text scores 0-100 fitting into vertical bars. The higher the bar the more test scores were in that range of scores.</p>
           <p>
             <label class="normal-dist-label" for="numberOfPoints">number of scores on the exam: <span>100</span></label>
             <input id="normalPoints" class="mdl-slider mdl-js-slider" type="range" min="10" max="1000" value="100" tabindex="0" name="numberOfPoints"/>
           </p>
           <svg class="normal-distribution"></svg>
+        </section>
+        <section id="sampling">
+          <h2>sampling <a href="#sampling">#</a></h2>
+          <p>Sampling is the process of selecting a subset of individuals from a population. The basic theory of sampling is that a subset which has followed correct sampling techniques will be representative of the population. Creating a representative sampling frame would mean that the sample's makeup would closely match that of the population.</p>
+          <p>Let's start with a sample population of circles. <span style="color: #2ca02c;">Green</span> circles. <span style="color: #d62728;">Red</span> circles. And <span style="color: steelblue;">blue</span> circles. How about a nice population size of <span class="sample-population"></span>.</p>
+          <svg class="sampling"></svg>
+          <p>
+            <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="sampleSwitch">
+              <input type="checkbox" id="sampleSwitch" class="mdl-switch__input"/>
+              <span class="mdl-switch__label">show sample</span>
+            </label>
+          </p>
+
         </section>
         <section id="inferential-statistics">
           <h2>inferential statistics <a href="#inferential-statistics">#</a></h2>
