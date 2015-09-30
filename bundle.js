@@ -1,4 +1,462 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var boxWhisker = function(data) {
+
+  var boxJS = require('./box.js');
+
+  var margin = {top: 30, right: 150, bottom: 30, left: 150},
+    width = $(".page-content").width() - margin.left - margin.right,
+    height = $(".page-content").width() / 2 - margin.top - margin.bottom;
+
+  var chart = d3.box()
+    .whiskers(iqr(1.5))
+    .width(width)
+    .height(height)
+    .domain(d3.extent(data, function(d) {return d; }));
+
+  var array = [];
+  array.push(data);
+
+  var svg = d3.select(".box")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.bottom + margin.top)
+
+  svg.selectAll('.box-whisker')
+    .data(array)
+    .enter()
+    .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+      .call(chart);
+
+  function iqr(k) {
+    return function(d, i) {
+      var q1 = d.quartiles[0],
+          q3 = d.quartiles[2],
+          iqr = (q3 - q1) * k,
+          i = -1,
+          j = d.length;
+      while (d[++i] < q1 - iqr);
+      while (d[--j] > q3 + iqr);
+      return [i, j];
+    };
+  }
+
+}
+
+module.exports = boxWhisker;
+
+},{"./box.js":2}],2:[function(require,module,exports){
+(function() {
+
+// Inspired by http://informationandvisualization.de/blog/box-plot
+d3.box = function() {
+  var width = 1,
+      height = 1,
+      duration = 0,
+      domain = null,
+      value = Number,
+      whiskers = boxWhiskers,
+      quartiles = boxQuartiles,
+      tickFormat = null;
+
+  // For each small multiple…
+  function box(g) {
+    g.each(function(d, i) {
+      d = d.map(value).sort(d3.ascending);
+      var g = d3.select(this),
+          n = d.length,
+          min = d[0],
+          max = d[n - 1];
+
+      // Compute quartiles. Must return exactly 3 elements.
+      var quartileData = d.quartiles = quartiles(d);
+
+      // Compute whiskers. Must return exactly 2 elements, or null.
+      var whiskerIndices = whiskers && whiskers.call(this, d, i),
+          whiskerData = whiskerIndices && whiskerIndices.map(function(i) { return d[i]; });
+
+      // Compute outliers. If no whiskers are specified, all data are "outliers".
+      // We compute the outliers as indices, so that we can join across transitions!
+      var outlierIndices = whiskerIndices
+          ? d3.range(0, whiskerIndices[0]).concat(d3.range(whiskerIndices[1] + 1, n))
+          : d3.range(n);
+
+      // Compute the new x-scale.
+      var x1 = d3.scale.linear()
+          .domain(domain && domain.call(this, d, i) || [min, max])
+          .range([height, 0]);
+
+      // Retrieve the old x-scale, if this is an update.
+      var x0 = this.__chart__ || d3.scale.linear()
+          .domain([0, Infinity])
+          .range(x1.range());
+
+      // Stash the new scale.
+      this.__chart__ = x1;
+
+      // Note: the box, median, and box tick elements are fixed in number,
+      // so we only have to handle enter and update. In contrast, the outliers
+      // and other elements are variable, so we need to exit them! Variable
+      // elements also fade in and out.
+
+      // Update center line: the vertical line spanning the whiskers.
+      var center = g.selectAll("line.center")
+          .data(whiskerData ? [whiskerData] : []);
+
+      center.enter().insert("line", "rect")
+          .attr("class", "center")
+          .attr("x1", width / 2)
+          .attr("y1", function(d) { return x0(d[0]); })
+          .attr("x2", width / 2)
+          .attr("y2", function(d) { return x0(d[1]); })
+          .style("opacity", 1e-6)
+        .transition()
+          .duration(duration)
+          .style("opacity", 1)
+          .attr("y1", function(d) { return x1(d[0]); })
+          .attr("y2", function(d) { return x1(d[1]); });
+
+      center.transition()
+          .duration(duration)
+          .style("opacity", 1)
+          .attr("y1", function(d) { return x1(d[0]); })
+          .attr("y2", function(d) { return x1(d[1]); });
+
+      center.exit().transition()
+          .duration(duration)
+          .style("opacity", 1e-6)
+          .attr("y1", function(d) { return x1(d[0]); })
+          .attr("y2", function(d) { return x1(d[1]); })
+          .remove();
+
+      // Update innerquartile box.
+      var box = g.selectAll("rect.box")
+          .data([quartileData]);
+
+      box.enter().append("rect")
+          .attr("class", "box")
+          .attr("x", 0)
+          .attr("y", function(d) { return x0(d[2]); })
+          .attr("width", width)
+          .attr("height", function(d) { return x0(d[0]) - x0(d[2]); })
+        .transition()
+          .duration(duration)
+          .attr("y", function(d) { return x1(d[2]); })
+          .attr("height", function(d) { return x1(d[0]) - x1(d[2]); });
+
+      box.transition()
+          .duration(duration)
+          .attr("y", function(d) { return x1(d[2]); })
+          .attr("height", function(d) { return x1(d[0]) - x1(d[2]); });
+
+      // Update median line.
+      var medianLine = g.selectAll("line.median")
+          .data([quartileData[1]]);
+
+      medianLine.enter().append("line")
+          .attr("class", "median")
+          .attr("x1", 0)
+          .attr("y1", x0)
+          .attr("x2", width)
+          .attr("y2", x0)
+        .transition()
+          .duration(duration)
+          .attr("y1", x1)
+          .attr("y2", x1);
+
+      medianLine.transition()
+          .duration(duration)
+          .attr("y1", x1)
+          .attr("y2", x1);
+
+      // Update whiskers.
+      var whisker = g.selectAll("line.whisker")
+          .data(whiskerData || []);
+
+      whisker.enter().insert("line", "circle, text")
+          .attr("class", "whisker")
+          .attr("x1", 0)
+          .attr("y1", x0)
+          .attr("x2", width)
+          .attr("y2", x0)
+          .style("opacity", 1e-6)
+        .transition()
+          .duration(duration)
+          .attr("y1", x1)
+          .attr("y2", x1)
+          .style("opacity", 1);
+
+      whisker.transition()
+          .duration(duration)
+          .attr("y1", x1)
+          .attr("y2", x1)
+          .style("opacity", 1);
+
+      whisker.exit().transition()
+          .duration(duration)
+          .attr("y1", x1)
+          .attr("y2", x1)
+          .style("opacity", 1e-6)
+          .remove();
+
+      // Update outliers.
+      var outlier = g.selectAll("circle.outlier")
+          .data(outlierIndices, Number);
+
+      outlier.enter().insert("circle", "text")
+          .attr("class", "outlier")
+          .attr("r", 5)
+          .attr("cx", width / 2)
+          .attr("cy", function(i) { return x0(d[i]); })
+          .style("opacity", 1e-6)
+        .transition()
+          .duration(duration)
+          .attr("cy", function(i) { return x1(d[i]); })
+          .style("opacity", 1);
+
+      outlier.transition()
+          .duration(duration)
+          .attr("cy", function(i) { return x1(d[i]); })
+          .style("opacity", 1);
+
+      outlier.exit().transition()
+          .duration(duration)
+          .attr("cy", function(i) { return x1(d[i]); })
+          .style("opacity", 1e-6)
+          .remove();
+
+      // Compute the tick format.
+      var format = tickFormat || x1.tickFormat(8);
+
+      // Update box ticks.
+      var boxTick = g.selectAll("text.box")
+          .data(quartileData);
+
+      boxTick.enter().append("text")
+          .attr("class", "box")
+          .attr("dy", ".3em")
+          .attr("dx", function(d, i) { return i & 1 ? 6 : -6 })
+          .attr("x", function(d, i) { return i & 1 ? width : 0 })
+          .attr("y", x0)
+          .attr("text-anchor", function(d, i) { return i & 1 ? "start" : "end"; })
+          .text(format)
+        .transition()
+          .duration(duration)
+          .attr("y", x1);
+
+      boxTick.transition()
+          .duration(duration)
+          .text(format)
+          .attr("y", x1);
+
+      // Update whisker ticks. These are handled separately from the box
+      // ticks because they may or may not exist, and we want don't want
+      // to join box ticks pre-transition with whisker ticks post-.
+      var whiskerTick = g.selectAll("text.whisker")
+          .data(whiskerData || []);
+
+      whiskerTick.enter().append("text")
+          .attr("class", "whisker")
+          .attr("dy", ".3em")
+          .attr("dx", 6)
+          .attr("x", width)
+          .attr("y", x0)
+          .text(format)
+          .style("opacity", 1e-6)
+        .transition()
+          .duration(duration)
+          .attr("y", x1)
+          .style("opacity", 1);
+
+      whiskerTick.transition()
+          .duration(duration)
+          .text(format)
+          .attr("y", x1)
+          .style("opacity", 1);
+
+      whiskerTick.exit().transition()
+          .duration(duration)
+          .attr("y", x1)
+          .style("opacity", 1e-6)
+          .remove();
+    });
+    d3.timer.flush();
+  }
+
+  box.width = function(x) {
+    if (!arguments.length) return width;
+    width = x;
+    return box;
+  };
+
+  box.height = function(x) {
+    if (!arguments.length) return height;
+    height = x;
+    return box;
+  };
+
+  box.tickFormat = function(x) {
+    if (!arguments.length) return tickFormat;
+    tickFormat = x;
+    return box;
+  };
+
+  box.duration = function(x) {
+    if (!arguments.length) return duration;
+    duration = x;
+    return box;
+  };
+
+  box.domain = function(x) {
+    if (!arguments.length) return domain;
+    domain = x == null ? x : d3.functor(x);
+    return box;
+  };
+
+  box.value = function(x) {
+    if (!arguments.length) return value;
+    value = x;
+    return box;
+  };
+
+  box.whiskers = function(x) {
+    if (!arguments.length) return whiskers;
+    whiskers = x;
+    return box;
+  };
+
+  box.quartiles = function(x) {
+    if (!arguments.length) return quartiles;
+    quartiles = x;
+    return box;
+  };
+
+  return box;
+};
+
+function boxWhiskers(d) {
+  return [0, d.length - 1];
+}
+
+function boxQuartiles(d) {
+  return [
+    d3.quantile(d, .25),
+    d3.quantile(d, .5),
+    d3.quantile(d, .75)
+  ];
+}
+
+})();
+
+},{}],3:[function(require,module,exports){
+var normalDistribution = function() {
+
+  var values = d3.range(100).map(function(i) {
+      return ~~d3.random.normal(50, 13)();
+    });
+
+  var margin = {top: 30, right: 30, bottom: 30, left: 30},
+    width = $(".page-content").width() - margin.left - margin.right,
+    height = $(".page-content").width() / 1.75 - margin.top - margin.bottom,
+    binTicks = 20;
+
+  var x = d3.scale.linear()
+    .domain([0, 100])
+    .range([0, width]);
+
+  var data = d3.layout.histogram()
+    .bins(x.ticks(binTicks))(values);
+
+  var y = d3.scale.linear()
+    .domain([0, d3.max(data, function(d) { return d.y; })])
+    .range([height, 0]);
+
+  var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+  var svg = d3.select(".normal-distribution")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  var bar = svg.selectAll(".bar")
+    .data(data)
+    .enter().append("g")
+    .attr("class", "bar")
+    .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
+
+  bar.append("rect")
+    .attr("x", 1)
+    .attr("width", x(data[0].dx) - 1)
+    .attr("height", function(d) { return height - y(d.y); });
+
+  bar.append("text")
+    .attr("dy", ".75em")
+    .attr("y", -10)
+    .attr("x", x(data[0].dx) / 2)
+    .attr("text-anchor", "middle")
+    .text(function(d) { return d.y > 0 ? d.y : ""; });
+
+  svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
+
+  var display = svg.append("g")
+    .attr("class", "central-tendency")
+    .attr("transform", "translate(0,0)")
+
+  display.append("text")
+    .attr("class", "mean")
+    .text("mu: " + d3.mean(values));
+
+  display.append("text")
+    .attr("class", "standard-deviation")
+    .attr("transform", "translate(0,17)")
+    .text("sigma: " + d3.deviation(values));
+
+  d3.select("#normalPoints").on("input", function(){
+
+    $('.normal-dist-label span').html(this.value);
+
+    var newNormal = d3.range(this.value).map(function(i) {
+        return ~~d3.random.normal(50, 13)();
+      });
+
+    var newData = d3.layout.histogram()
+      .bins(x.ticks(binTicks))(newNormal);
+
+    var bar = svg.selectAll(".bar").data(newData);
+    var rect = svg.selectAll("rect");
+    var stdDev = svg.select(".standard-deviation");
+    var mean = svg.select(".mean");
+    var duration = 300;
+
+    y.domain([0, d3.max(newData, function(d) {return d.y; })])
+
+    bar.transition().duration(duration).attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
+
+    bar.select("rect")
+      .transition()
+      .duration(duration)
+      .attr("x", 1)
+      .attr("width", x(data[0].dx) - 1)
+      .attr("height", function(d) { return height - y(d.y); });
+
+    bar.select("text")
+      .text(function(d) { return d.y > 0 ? d.y : ""; });
+
+    stdDev.text("sigma: " + d3.deviation(newNormal));
+    mean.text("mu: " + d3.mean(newNormal));
+
+  });
+
+}
+
+module.exports = normalDistribution;
+
+},{}],4:[function(require,module,exports){
 'use strict';
 
 var ss = require('simple-statistics');
@@ -9,20 +467,19 @@ var simpleDataset = d3.range(15).map(function(i) {
     return a - b;
   });
 
-var normalDist = d3.range(100).map(function(i){
-    return ~~d3.random.normal(50, 10)();
-  });
-
 d3.select('.simple-dataset').html(simpleDataset);
 d3.select('.mean').html(d3.mean(simpleDataset));
 d3.select('.median').html(d3.median(simpleDataset));
 d3.select('.range').html(d3.max(simpleDataset) - d3.min(simpleDataset));
 d3.select('.mode').html(ss.mode(simpleDataset));
+d3.select('.variance').html(d3.variance(simpleDataset));
 d3.select('.standard-deviation').html(d3.deviation(simpleDataset))
 
-console.log(normalDist);
+var boxWhisker = require('./extra_modules/box-whisker.js')(simpleDataset);
 
-},{"simple-statistics":2}],2:[function(require,module,exports){
+var normal = require('./extra_modules/normal-distribution.js')();
+
+},{"./extra_modules/box-whisker.js":1,"./extra_modules/normal-distribution.js":3,"simple-statistics":5}],5:[function(require,module,exports){
 'use strict';
 
 // # simple-statistics
@@ -92,7 +549,7 @@ ss.inverseErrorFunction = require('./src/inverse_error_function');
 ss.probit = require('./src/probit');
 ss.mixin = require('./src/mixin');
 
-},{"./src/bayesian_classifier":3,"./src/bernoulli_distribution":4,"./src/binomial_distribution":5,"./src/chi_squared_goodness_of_fit":7,"./src/chunk":8,"./src/ckmeans":9,"./src/cumulative_std_normal_probability":10,"./src/epsilon":11,"./src/error_function":12,"./src/factorial":13,"./src/geometric_mean":14,"./src/harmonic_mean":15,"./src/interquartile_range":16,"./src/inverse_error_function":17,"./src/linear_regression":18,"./src/linear_regression_line":19,"./src/mad":20,"./src/max":21,"./src/mean":22,"./src/median":23,"./src/min":24,"./src/mixin":25,"./src/mode":26,"./src/perceptron":28,"./src/poisson_distribution":29,"./src/probit":30,"./src/quantile":31,"./src/quantile_sorted":32,"./src/r_squared":33,"./src/root_mean_square":34,"./src/sample":35,"./src/sample_correlation":36,"./src/sample_covariance":37,"./src/sample_skewness":38,"./src/sample_standard_deviation":39,"./src/sample_variance":40,"./src/shuffle":41,"./src/shuffle_in_place":42,"./src/sorted_unique_count":43,"./src/standard_deviation":44,"./src/standard_normal_table":45,"./src/sum":46,"./src/sum_nth_power_deviations":47,"./src/t_test":48,"./src/t_test_two_sample":49,"./src/variance":50,"./src/z_score":51}],3:[function(require,module,exports){
+},{"./src/bayesian_classifier":6,"./src/bernoulli_distribution":7,"./src/binomial_distribution":8,"./src/chi_squared_goodness_of_fit":10,"./src/chunk":11,"./src/ckmeans":12,"./src/cumulative_std_normal_probability":13,"./src/epsilon":14,"./src/error_function":15,"./src/factorial":16,"./src/geometric_mean":17,"./src/harmonic_mean":18,"./src/interquartile_range":19,"./src/inverse_error_function":20,"./src/linear_regression":21,"./src/linear_regression_line":22,"./src/mad":23,"./src/max":24,"./src/mean":25,"./src/median":26,"./src/min":27,"./src/mixin":28,"./src/mode":29,"./src/perceptron":31,"./src/poisson_distribution":32,"./src/probit":33,"./src/quantile":34,"./src/quantile_sorted":35,"./src/r_squared":36,"./src/root_mean_square":37,"./src/sample":38,"./src/sample_correlation":39,"./src/sample_covariance":40,"./src/sample_skewness":41,"./src/sample_standard_deviation":42,"./src/sample_variance":43,"./src/shuffle":44,"./src/shuffle_in_place":45,"./src/sorted_unique_count":46,"./src/standard_deviation":47,"./src/standard_normal_table":48,"./src/sum":49,"./src/sum_nth_power_deviations":50,"./src/t_test":51,"./src/t_test_two_sample":52,"./src/variance":53,"./src/z_score":54}],6:[function(require,module,exports){
 'use strict';
 
 /**
@@ -211,7 +668,7 @@ BayesianClassifier.prototype.score = function(item) {
 
 module.exports = BayesianClassifier;
 
-},{}],4:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 'use strict';
 
 var binomialDistribution = require('./binomial_distribution');
@@ -239,7 +696,7 @@ function bernoulliDistribution(p) {
 
 module.exports = bernoulliDistribution;
 
-},{"./binomial_distribution":5}],5:[function(require,module,exports){
+},{"./binomial_distribution":8}],8:[function(require,module,exports){
 'use strict';
 
 var epsilon = require('./epsilon');
@@ -292,7 +749,7 @@ function binomialDistribution(trials, probability) {
 
 module.exports = binomialDistribution;
 
-},{"./epsilon":11,"./factorial":13}],6:[function(require,module,exports){
+},{"./epsilon":14,"./factorial":16}],9:[function(require,module,exports){
 'use strict';
 
 /**
@@ -348,7 +805,7 @@ var chiSquaredDistributionTable = {
 
 module.exports = chiSquaredDistributionTable;
 
-},{}],7:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 'use strict';
 
 var mean = require('./mean');
@@ -455,7 +912,7 @@ function chiSquaredGoodnessOfFit(data, distributionType, significance) {
 
 module.exports = chiSquaredGoodnessOfFit;
 
-},{"./chi_squared_distribution_table":6,"./mean":22}],8:[function(require,module,exports){
+},{"./chi_squared_distribution_table":9,"./mean":25}],11:[function(require,module,exports){
 'use strict';
 
 /**
@@ -500,7 +957,7 @@ function chunk(sample, chunkSize) {
 
 module.exports = chunk;
 
-},{}],9:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 var sortedUniqueCount = require('./sorted_unique_count'),
@@ -683,7 +1140,7 @@ function ckmeans(data, nClusters) {
 
 module.exports = ckmeans;
 
-},{"./numeric_sort":27,"./sorted_unique_count":43}],10:[function(require,module,exports){
+},{"./numeric_sort":30,"./sorted_unique_count":46}],13:[function(require,module,exports){
 'use strict';
 
 var standardNormalTable = require('./standard_normal_table');
@@ -727,7 +1184,7 @@ function cumulativeStdNormalProbability(z) {
 
 module.exports = cumulativeStdNormalProbability;
 
-},{"./standard_normal_table":45}],11:[function(require,module,exports){
+},{"./standard_normal_table":48}],14:[function(require,module,exports){
 'use strict';
 
 /**
@@ -742,7 +1199,7 @@ var epsilon = 0.0001;
 
 module.exports = epsilon;
 
-},{}],12:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 'use strict';
 
 /**
@@ -780,7 +1237,7 @@ function errorFunction(x) {
 
 module.exports = errorFunction;
 
-},{}],13:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
 /**
@@ -814,7 +1271,7 @@ function factorial(n) {
 
 module.exports = factorial;
 
-},{}],14:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
 /**
@@ -869,7 +1326,7 @@ function geometricMean(x) {
 
 module.exports = geometricMean;
 
-},{}],15:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 /**
@@ -907,7 +1364,7 @@ function harmonicMean(x) {
 
 module.exports = harmonicMean;
 
-},{}],16:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 'use strict';
 
 var quantile = require('./quantile');
@@ -935,7 +1392,7 @@ function interquartileRange(sample) {
 
 module.exports = interquartileRange;
 
-},{"./quantile":31}],17:[function(require,module,exports){
+},{"./quantile":34}],20:[function(require,module,exports){
 'use strict';
 
 /**
@@ -963,7 +1420,7 @@ function inverseErrorFunction(x) {
 
 module.exports = inverseErrorFunction;
 
-},{}],18:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1036,7 +1493,7 @@ function linearRegression(data) {
 
 module.exports = linearRegression;
 
-},{}],19:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1065,7 +1522,7 @@ function linearRegressionLine(mb) {
 
 module.exports = linearRegressionLine;
 
-},{}],20:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 'use strict';
 
 var median = require('./median');
@@ -1098,7 +1555,7 @@ function mad(x) {
 
 module.exports = mad;
 
-},{"./median":23}],21:[function(require,module,exports){
+},{"./median":26}],24:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1125,7 +1582,7 @@ function max(x) {
 
 module.exports = max;
 
-},{}],22:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 'use strict';
 
 var sum = require('./sum');
@@ -1152,7 +1609,7 @@ function mean(x) {
 
 module.exports = mean;
 
-},{"./sum":46}],23:[function(require,module,exports){
+},{"./sum":49}],26:[function(require,module,exports){
 'use strict';
 
 var numericSort = require('./numeric_sort');
@@ -1196,7 +1653,7 @@ function median(x) {
 
 module.exports = median;
 
-},{"./numeric_sort":27}],24:[function(require,module,exports){
+},{"./numeric_sort":30}],27:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1221,7 +1678,7 @@ function min(x) {
 
 module.exports = min;
 
-},{}],25:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1301,7 +1758,7 @@ function mixin(ss, array) {
 
 module.exports = mixin;
 
-},{}],26:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 'use strict';
 
 var numericSort = require('./numeric_sort');
@@ -1369,7 +1826,7 @@ function mode(x) {
 
 module.exports = mode;
 
-},{"./numeric_sort":27}],27:[function(require,module,exports){
+},{"./numeric_sort":30}],30:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1400,7 +1857,7 @@ function numericSort(array) {
 
 module.exports = numericSort;
 
-},{}],28:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1497,7 +1954,7 @@ PerceptronModel.prototype.train = function(features, label) {
 
 module.exports = PerceptronModel;
 
-},{}],29:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 'use strict';
 
 var epsilon = require('./epsilon');
@@ -1545,7 +2002,7 @@ function poissonDistribution(lambda) {
 
 module.exports = poissonDistribution;
 
-},{"./epsilon":11,"./factorial":13}],30:[function(require,module,exports){
+},{"./epsilon":14,"./factorial":16}],33:[function(require,module,exports){
 'use strict';
 
 var epsilon = require('./epsilon');
@@ -1575,7 +2032,7 @@ function probit(p) {
 
 module.exports = probit;
 
-},{"./epsilon":11,"./inverse_error_function":17}],31:[function(require,module,exports){
+},{"./epsilon":14,"./inverse_error_function":20}],34:[function(require,module,exports){
 'use strict';
 
 var quantileSorted = require('./quantile_sorted');
@@ -1629,7 +2086,7 @@ function quantile(sample, p) {
 
 module.exports = quantile;
 
-},{"./numeric_sort":27,"./quantile_sorted":32}],32:[function(require,module,exports){
+},{"./numeric_sort":30,"./quantile_sorted":35}],35:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1672,7 +2129,7 @@ function quantileSorted(sample, p) {
 
 module.exports = quantileSorted;
 
-},{}],33:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1725,7 +2182,7 @@ function rSquared(data, func) {
 
 module.exports = rSquared;
 
-},{}],34:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1754,7 +2211,7 @@ function rootMeanSquare(x) {
 
 module.exports = rootMeanSquare;
 
-},{}],35:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 'use strict';
 
 var shuffle = require('./shuffle');
@@ -1785,7 +2242,7 @@ function sample(array, n, randomSource) {
 
 module.exports = sample;
 
-},{"./shuffle":41}],36:[function(require,module,exports){
+},{"./shuffle":44}],39:[function(require,module,exports){
 'use strict';
 
 var sampleCovariance = require('./sample_covariance');
@@ -1817,7 +2274,7 @@ function sampleCorrelation(x, y) {
 
 module.exports = sampleCorrelation;
 
-},{"./sample_covariance":37,"./sample_standard_deviation":39}],37:[function(require,module,exports){
+},{"./sample_covariance":40,"./sample_standard_deviation":42}],40:[function(require,module,exports){
 'use strict';
 
 var mean = require('./mean');
@@ -1869,7 +2326,7 @@ function sampleCovariance(x, y) {
 
 module.exports = sampleCovariance;
 
-},{"./mean":22}],38:[function(require,module,exports){
+},{"./mean":25}],41:[function(require,module,exports){
 'use strict';
 
 var sumNthPowerDeviations = require('./sum_nth_power_deviations');
@@ -1904,7 +2361,7 @@ function sampleSkewness(x) {
 
 module.exports = sampleSkewness;
 
-},{"./sample_standard_deviation":39,"./sum_nth_power_deviations":47}],39:[function(require,module,exports){
+},{"./sample_standard_deviation":42,"./sum_nth_power_deviations":50}],42:[function(require,module,exports){
 'use strict';
 
 var sampleVariance = require('./sample_variance');
@@ -1928,7 +2385,7 @@ function sampleStandardDeviation(x) {
 
 module.exports = sampleStandardDeviation;
 
-},{"./sample_variance":40}],40:[function(require,module,exports){
+},{"./sample_variance":43}],43:[function(require,module,exports){
 'use strict';
 
 var sumNthPowerDeviations = require('./sum_nth_power_deviations');
@@ -1966,7 +2423,7 @@ function sampleVariance(x) {
 
 module.exports = sampleVariance;
 
-},{"./sum_nth_power_deviations":47}],41:[function(require,module,exports){
+},{"./sum_nth_power_deviations":50}],44:[function(require,module,exports){
 'use strict';
 
 var shuffleInPlace = require('./shuffle_in_place');
@@ -1994,7 +2451,7 @@ function shuffle(sample, randomSource) {
 
 module.exports = shuffle;
 
-},{"./shuffle_in_place":42}],42:[function(require,module,exports){
+},{"./shuffle_in_place":45}],45:[function(require,module,exports){
 'use strict';
 
 /*
@@ -2050,7 +2507,7 @@ function shuffleInPlace(sample, randomSource) {
 
 module.exports = shuffleInPlace;
 
-},{}],43:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 'use strict';
 
 /**
@@ -2081,7 +2538,7 @@ function sortedUniqueCount(input) {
 
 module.exports = sortedUniqueCount;
 
-},{}],44:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 'use strict';
 
 var variance = require('./variance');
@@ -2111,7 +2568,7 @@ function standardDeviation(x) {
 
 module.exports = standardDeviation;
 
-},{"./variance":50}],45:[function(require,module,exports){
+},{"./variance":53}],48:[function(require,module,exports){
 'use strict';
 
 var SQRT_2PI = Math.sqrt(2 * Math.PI);
@@ -2149,7 +2606,7 @@ for (var z = 0; z <= 3.09; z += 0.01) {
 
 module.exports = standardNormalTable;
 
-},{}],46:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 'use strict';
 
 /**
@@ -2173,7 +2630,7 @@ function sum(x) {
 
 module.exports = sum;
 
-},{}],47:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 'use strict';
 
 var mean = require('./mean');
@@ -2205,7 +2662,7 @@ function sumNthPowerDeviations(x, n) {
 
 module.exports = sumNthPowerDeviations;
 
-},{"./mean":22}],48:[function(require,module,exports){
+},{"./mean":25}],51:[function(require,module,exports){
 'use strict';
 
 var standardDeviation = require('./standard_deviation');
@@ -2245,7 +2702,7 @@ function tTest(sample, x) {
 
 module.exports = tTest;
 
-},{"./mean":22,"./standard_deviation":44}],49:[function(require,module,exports){
+},{"./mean":25,"./standard_deviation":47}],52:[function(require,module,exports){
 'use strict';
 
 var mean = require('./mean');
@@ -2302,7 +2759,7 @@ function tTestTwoSample(sampleX, sampleY, difference) {
 
 module.exports = tTestTwoSample;
 
-},{"./mean":22,"./sample_variance":40}],50:[function(require,module,exports){
+},{"./mean":25,"./sample_variance":43}],53:[function(require,module,exports){
 'use strict';
 
 var sumNthPowerDeviations = require('./sum_nth_power_deviations');
@@ -2331,7 +2788,7 @@ function variance(x) {
 
 module.exports = variance;
 
-},{"./sum_nth_power_deviations":47}],51:[function(require,module,exports){
+},{"./sum_nth_power_deviations":50}],54:[function(require,module,exports){
 'use strict';
 
 /**
@@ -2363,4 +2820,4 @@ function zScore(x, mean, standardDeviation) {
 
 module.exports = zScore;
 
-},{}]},{},[1])
+},{}]},{},[4])
