@@ -68,7 +68,7 @@ var normalDistribution = function() {
 
   d3.select("#normalPoints").on("input", function(){
 
-    $('.normal-dist-label span').html(this.value);
+    d3.select('.normal-dist-label span').html(this.value);
 
     var newNormal = d3.range(this.value).map(function(i) {
         return ~~d3.random.normal(50, 13)();
