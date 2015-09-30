@@ -4,17 +4,17 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- d3 -->
-  <script src="/bower_components/d3/d3.min.js"></script>
+  <script src="bower_components/d3/d3.min.js"></script>
 
   <!-- box.js -->
-  <script src="/extra_modules/box.js"></script>
+  <script src="extra_modules/box.js"></script>
 
   <!-- simple statistics -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-statistics/1.0.0/simple_statistics.min.js"></script>
 
   <!-- material design lite -->
   <link rel="stylesheet" href="https://storage.googleapis.com/code.getmdl.io/1.0.4/material.blue_grey-blue.min.css" />
-  <script src="/bower_components/material-design-lite/material.min.js"></script>
+  <script src="bower_components/material-design-lite/material.min.js"></script>
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
   <style>
@@ -32,11 +32,6 @@
 
   .box {
     font: 14px sans-serif;
-  }
-
-  .box .median {
-    stroke: #fff !important;
-    stroke-width: 1.5px !important;
   }
 
   .box line,
@@ -109,6 +104,9 @@
           <p>Let's start with a simple dataset of 15 random numbers between 0 and 50.</p>
           <p class="simple-dataset"></p>
 
+          <h2>central tendency</h2>
+          <p>The mean, median, and mode are measures of central tendency. Each are used to show indentify characteristics of a dataset.</p>
+
           <h3>mean</h3>
           <p>A mean is commonly referred to as an average. It is the sum of the points divided by the number of points.</p>
           <p class="mean"></p>
@@ -121,12 +119,19 @@
           <p>The mode is the most commonly occurring point in a dataset.</p>
           <p class="mode"></p>
 
+          <h2>spread</h2>
+          <p>The range, variance and standard deviation are all measures of spread for a dataset. These measures give an approximation of the breadth of the data.</p>
+
           <h3>range</h3>
           <p>The range is the maximum point in a dataset minus the minimum point in a dataset. In other terms, what does the dataset span?</p>
           <p class="range"></p>
 
+          <h3>variance</h3>
+          <p>Variance is the average of the squared differences from the mean. In other words, the standard deviation squared.</p>
+          <p class="variance"></p>
+
           <h3>standard deviation</h3>
-          <p>The standard deviation is a measure of the amount of variation in a set of data.</p>
+          <p>The standard deviation is a measure of the amount of variation in a set of data. More commonly thought of as the average of the difference from the mean.</p>
           <p class="standard-deviation"></p>
 
           <h3>box and whisker plot</h3>
@@ -141,7 +146,7 @@
           </p>
           <svg class="normal-distribution"></svg>
         </section>
-        <section>
+        <section id="inferential-statistics">
           <h2>inferential statistics <a href="#inferential-statistics">#</a></h2>
         </section>
 
