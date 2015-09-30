@@ -1,5 +1,7 @@
 var boxWhisker = function(data) {
 
+  var boxJS = require('./box.js');
+
   var margin = {top: 30, right: 150, bottom: 30, left: 150},
     width = $(".page-content").width() - margin.left - margin.right,
     height = $(".page-content").width() / 2 - margin.top - margin.bottom;

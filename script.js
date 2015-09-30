@@ -13,6 +13,7 @@ d3.select('.mean').html(d3.mean(simpleDataset));
 d3.select('.median').html(d3.median(simpleDataset));
 d3.select('.range').html(d3.max(simpleDataset) - d3.min(simpleDataset));
 d3.select('.mode').html(ss.mode(simpleDataset));
+d3.select('.variance').html(d3.variance(simpleDataset));
 d3.select('.standard-deviation').html(d3.deviation(simpleDataset))
 
 var boxWhisker = require('./extra_modules/box-whisker.js')(simpleDataset);

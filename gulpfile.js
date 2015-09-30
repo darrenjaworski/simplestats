@@ -19,7 +19,7 @@ gulp.task('serve', function(){
 })
 
 gulp.task('watch', function(){
-  gulp.watch('./script.js', ['scripts']);
+  gulp.watch(['./script.js', './extra_modules/*.js'], ['scripts']);
   gulp.watch(['./bundle.js', './*.html']).on('change', browserSync.reload);
 })
 
