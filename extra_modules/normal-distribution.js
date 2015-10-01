@@ -5,8 +5,8 @@ var normalDistribution = function() {
     });
 
   var margin = {top: 30, right: 30, bottom: 30, left: 30},
-    width = $(".page-content").width() - margin.left - margin.right,
-    height = $(".page-content").width() / 1.75 - margin.top - margin.bottom,
+    width = d3.select('.page-content')[0][0].offsetWidth - margin.left - margin.right,
+    height = d3.select('.page-content')[0][0].offsetWidth / 1.75 - margin.top - margin.bottom,
     binTicks = 20;
 
   var x = d3.scale.linear()

@@ -4,8 +4,8 @@ var boxWhisker = function(data) {
   var boxJS = require('./box.js');
 
   var margin = {top: 30, right: 150, bottom: 30, left: 150},
-    width = $(".page-content").width() - margin.left - margin.right,
-    height = $(".page-content").width() / 2 - margin.top - margin.bottom;
+    width = d3.select('.page-content')[0][0].offsetWidth - margin.left - margin.right,
+    height = d3.select('.page-content')[0][0].offsetWidth / 2 - margin.top - margin.bottom;
 
   var chart = d3.box()
     .whiskers(iqr(1.5))
@@ -355,8 +355,8 @@ var normalDistribution = function() {
     });
 
   var margin = {top: 30, right: 30, bottom: 30, left: 30},
-    width = $(".page-content").width() - margin.left - margin.right,
-    height = $(".page-content").width() / 1.75 - margin.top - margin.bottom,
+    width = d3.select('.page-content')[0][0].offsetWidth - margin.left - margin.right,
+    height = d3.select('.page-content')[0][0].offsetWidth / 1.75 - margin.top - margin.bottom,
     binTicks = 20;
 
   var x = d3.scale.linear()
@@ -459,7 +459,7 @@ module.exports = normalDistribution;
 },{}],4:[function(require,module,exports){
 var sampling = function() {
 
-  var width = $(".page-content").width(),
+  var width = d3.select('.page-content')[0][0].offsetWidth,
     height = width * .75,
     center = { x: width / 2, y: height / 2 },
     nodeNumber = 1000;
