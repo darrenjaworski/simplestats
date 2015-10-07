@@ -448,7 +448,7 @@ var normalDistribution = function() {
     .scale(x)
     .orient("bottom");
 
-  var yLine = d3.scale.linear()
+  var yArea = d3.scale.linear()
     .range([height, 0])
     .domain(d3.extent(pathData, function(d) {
         return d.p;
@@ -496,7 +496,7 @@ var normalDistribution = function() {
     .attr("transform", "translate(0,17)")
     .text("sigma: " + d3.deviation(values));
 
-  drawLine(values);
+  drawCurve(values);
 
   d3.select("#normalPoints").on("input", function(){
 
@@ -532,33 +532,33 @@ var normalDistribution = function() {
     stdDev.text("sigma: " + d3.deviation(newNormal));
     mean.text("mu: " + d3.mean(newNormal));
 
-    drawLine(newNormal);
+    drawCurve(newNormal);
 
   });
 
   d3.select("#showCurve").on("change", function(){
     var show = this.checked;
-    d3.select(".line")
+    d3.select(".area")
       .style("opacity", function(){ return show ? .75 : 0; });
   });
 
-  function drawLine(dataSet) {
+  function drawCurve(dataSet) {
 
     getData(dataSet);
 
-    yLine.domain(d3.extent(pathData, function(d) { return d.p; }));
+    yArea.domain(d3.extent(pathData, function(d) { return d.p; }));
 
-    var line = d3.svg.area()
+    var area = d3.svg.area()
       .x(function(d) { return x(d.q); })
       .y0(height)
-      .y1(function(d) { return yLine(d.p); });
+      .y1(function(d) { return yArea(d.p); });
 
-    d3.select(".line").remove();
+    d3.select(".area").remove();
 
     svg.append("path")
       .datum(pathData)
-      .attr("class", "line")
-      .attr("d", line)
+      .attr("class", "area")
+      .attr("d", area)
       .style("opacity", function(){ return d3.select("#showCurve")[0][0].checked ? .75 : 0; });
 
   }
@@ -601,7 +601,7 @@ var sampling = function() {
   var width = (d3.select('.page-content')[0][0].offsetWidth - 42),
     height = width * .75,
     center = { x: width / 2, y: height / 2 },
-    nodeNumber = 1000;
+    nodeNumber = 600;
 
   var color = d3.scale.ordinal()
     .range(["#2ca02c", "#d62728", "#1f77b4"]);
