@@ -1,6 +1,6 @@
 var sampling = function() {
 
-  var width = d3.select('.page-content')[0][0].offsetWidth,
+  var width = (d3.select('.page-content')[0][0].offsetWidth - 42),
     height = width * .75,
     center = { x: width / 2, y: height / 2 },
     nodeNumber = 1000;

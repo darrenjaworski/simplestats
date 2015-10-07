@@ -1,13 +1,14 @@
 var normalDistribution = function() {
 
-  var values = d3.range(100).map(function(i) {
+  var values = d3.range(50).map(function(i) {
       return ~~d3.random.normal(50, 13)();
     });
 
   var margin = {top: 30, right: 30, bottom: 30, left: 30},
-    width = d3.select('.page-content')[0][0].offsetWidth - margin.left - margin.right,
-    height = d3.select('.page-content')[0][0].offsetWidth / 1.75 - margin.top - margin.bottom,
-    binTicks = 20;
+    width = (d3.select('.page-content')[0][0].offsetWidth - 42) - margin.left - margin.right,
+    height = (d3.select('.page-content')[0][0].offsetWidth - 42) / 1.75 - margin.top - margin.bottom,
+    binTicks = 20,
+    pathData = [];
 
   var x = d3.scale.linear()
     .domain([0, 100])
@@ -23,6 +24,12 @@ var normalDistribution = function() {
   var xAxis = d3.svg.axis()
     .scale(x)
     .orient("bottom");
+
+  var yLine = d3.scale.linear()
+    .range([height, 0])
+    .domain(d3.extent(pathData, function(d) {
+        return d.p;
+    }));
 
   var svg = d3.select(".normal-distribution")
     .attr("width", width + margin.left + margin.right)
@@ -66,6 +73,9 @@ var normalDistribution = function() {
     .attr("transform", "translate(0,17)")
     .text("sigma: " + d3.deviation(values));
 
+  drawLine(values);
+  d3.select(".line").style("opacity", 0);
+
   d3.select("#normalPoints").on("input", function(){
 
     d3.select('.normal-dist-label span').html(this.value);
@@ -83,7 +93,7 @@ var normalDistribution = function() {
     var mean = svg.select(".mean");
     var duration = 300;
 
-    y.domain([0, d3.max(newData, function(d) {return d.y; })])
+    y.domain([0, d3.max(newData, function(d) {return d.y; })]);
 
     bar.transition().duration(duration).attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
 
@@ -100,7 +110,75 @@ var normalDistribution = function() {
     stdDev.text("sigma: " + d3.deviation(newNormal));
     mean.text("mu: " + d3.mean(newNormal));
 
+    drawLine(newNormal);
+
   });
+
+  d3.select("#showCurve").on("change", function(){
+    this.checked //true when checked
+    if (this.checked) {
+      d3.select(".line").style("opacity", 1);
+    } else {
+      d3.select(".line").style("opacity", 0);
+    }
+  });
+
+  function drawLine(dataSet) {
+
+    getData(dataSet);
+
+    yLine.domain(d3.extent(pathData, function(d) {
+        return d.p;
+    }));
+
+    var line = d3.svg.area()
+      .x(function(d) {
+          return x(d.q);
+      })
+      .y0(height)
+      .y1(function(d) {
+          return yLine(d.p);
+      });
+
+    d3.select(".line").remove();
+
+    svg.append("path")
+      .datum(pathData)
+      .attr("class", "line")
+      .attr("d", line);
+
+  }
+
+  function getData(dataSet) {
+
+    pathData = [];
+
+    for (var i = 0; i < 500; i++) {
+        var which = getRandomIntInclusive(0, dataSet.length - 1);
+        q = dataSet[which]
+        p = gaussian(q, d3.mean(dataSet), d3.deviation(dataSet))
+        el = {
+            "q": q,
+            "p": p
+        }
+        pathData.push(el)
+    };
+
+    pathData.sort(function(x, y) {
+        return x.q - y.q;
+    });
+
+  };
+
+  function getRandomIntInclusive(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function gaussian(x, mean, sigma) {
+  	var gaussianConstant = 1 / Math.sqrt(2 * Math.PI),
+      x = (x - mean) / sigma;
+      return gaussianConstant * Math.exp(-.5 * x * x) / sigma;
+  };
 
 }
 

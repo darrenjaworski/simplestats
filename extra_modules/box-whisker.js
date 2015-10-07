@@ -3,8 +3,8 @@ var boxWhisker = function(data) {
   var boxJS = require('./box.js');
 
   var margin = {top: 30, right: 150, bottom: 30, left: 150},
-    width = d3.select('.page-content')[0][0].offsetWidth - margin.left - margin.right,
-    height = d3.select('.page-content')[0][0].offsetWidth / 2 - margin.top - margin.bottom;
+    width = (d3.select('.page-content')[0][0].offsetWidth - 42) - margin.left - margin.right,
+    height = (d3.select('.page-content')[0][0].offsetWidth - 42) / 2 - margin.top - margin.bottom;
 
   var chart = d3.box()
     .whiskers(iqr(1.5))

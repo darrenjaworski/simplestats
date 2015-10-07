@@ -63,6 +63,15 @@
     stroke: rgba(0,0,0,.87);
     shape-rendering: crispEdges;
   }
+
+  .line {
+    fill: rgb(255, 193, 7);
+  }
+
+  .dot {
+    stroke: steelblue;
+    fill: steelblue;
+  }
   </style>
 
 </head>
@@ -142,10 +151,18 @@
           <h3>normal distribution</h3>
           <p>What is a normal distribution? Consider the hypothetical results of a biochemistry midterm exam below. Shown as a histogram with text scores 0-100 fitting into vertical bars. The higher the bar the more test scores were in that range of scores.</p>
           <p>
-            <label class="normal-dist-label" for="numberOfPoints">number of scores on the exam: <span>100</span></label>
-            <input id="normalPoints" class="mdl-slider mdl-js-slider" type="range" min="10" max="1000" value="100" tabindex="0" name="numberOfPoints"/>
+            <label class="normal-dist-label" for="numberOfPoints">number of scores on the exam: <span>50</span></label>
+            <input id="normalPoints" class="mdl-slider mdl-js-slider" type="range" min="10" max="300" value="50" tabindex="0" name="numberOfPoints"/>
           </p>
           <svg class="normal-distribution"></svg>
+          <p>
+            <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="showCurve">
+              <input type="checkbox" id="showCurve" class="mdl-switch__input"/>
+              <span class="mdl-switch__label">show curve</span>
+            </label>
+          </p>
+
+          <h3>q-q plots</h3>
         </section>
         <section id="sampling">
           <h2>sampling <a href="#sampling">#</a></h2>
@@ -173,6 +190,8 @@
         <section>
           <h2>regression</h2>
           <h3>correlation</h3>
+          <p>correlation of variable a to variable b: <span id="correlationCoefficient"></span></p>
+          <p>covariance of variable a to variable b: <span id="covariance"></span></p>
           <svg class="correlation"></svg>
         </section>
 

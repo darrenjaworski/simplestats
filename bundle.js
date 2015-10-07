@@ -4,8 +4,8 @@ var boxWhisker = function(data) {
   var boxJS = require('./box.js');
 
   var margin = {top: 30, right: 150, bottom: 30, left: 150},
-    width = d3.select('.page-content')[0][0].offsetWidth - margin.left - margin.right,
-    height = d3.select('.page-content')[0][0].offsetWidth / 2 - margin.top - margin.bottom;
+    width = (d3.select('.page-content')[0][0].offsetWidth - 42) - margin.left - margin.right,
+    height = (d3.select('.page-content')[0][0].offsetWidth - 42) / 2 - margin.top - margin.bottom;
 
   var chart = d3.box()
     .whiskers(iqr(1.5))
@@ -348,16 +348,90 @@ function boxQuartiles(d) {
 })();
 
 },{}],3:[function(require,module,exports){
+var correlation = function() {
+
+  var margin = { top: 30, right: 45, bottom: 30, left: 45 },
+    width = (d3.select('.page-content')[0][0].offsetWidth - 42) - margin.left - margin.right,
+    height = (d3.select('.page-content')[0][0].offsetWidth - 42) * .75 - margin.top - margin.bottom,
+    data = d3.range(100).map( function(i) { return { A: d3.random.normal(10, 3)(), B: d3.random.normal(10, 3)() }; }),
+    varA = data.map(function(d){ return d.A; }),
+    varB = data.map(function(d){ return d.B; }),
+    correlation = ss.sampleCorrelation(varA, varB),
+    covariance = ss.sampleCovariance(varA, varB);
+
+  d3.select("#correlationCoefficient").html(correlation);
+  d3.select("#covariance").html(covariance);
+
+  var x = d3.scale.linear()
+    .range([0, width])
+    .domain(d3.extent(data, function(d) { return d.A; }))
+    .nice();
+
+  var y = d3.scale.linear()
+    .range([height, 0])
+    .domain(d3.extent(data, function(d) { return d.B; }))
+    .nice();
+
+  var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+  var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left");
+
+  var svg = d3.select(".correlation")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis)
+    .append("text")
+    .attr("class", "label")
+    .attr("x", width)
+    .attr("y", -6)
+    .style("text-anchor", "end")
+    .text("variable a");
+
+  svg.append("g")
+    .attr("class", "y axis")
+    .call(yAxis)
+    .append("text")
+    .attr("class", "label")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 6)
+    .attr("dy", ".71em")
+    .style("text-anchor", "end")
+    .text("variable b");
+
+  svg.selectAll(".dot")
+    .data(data)
+    .enter().append("circle")
+    .attr("class", "dot")
+    .attr("r", 3.5)
+    .attr("cx", function(d) { return x(d.A); })
+    .attr("cy", function(d) { return y(d.B); });
+
+}
+
+module.exports = correlation;
+
+},{}],4:[function(require,module,exports){
 var normalDistribution = function() {
 
-  var values = d3.range(100).map(function(i) {
+  var values = d3.range(50).map(function(i) {
       return ~~d3.random.normal(50, 13)();
     });
 
   var margin = {top: 30, right: 30, bottom: 30, left: 30},
-    width = d3.select('.page-content')[0][0].offsetWidth - margin.left - margin.right,
-    height = d3.select('.page-content')[0][0].offsetWidth / 1.75 - margin.top - margin.bottom,
-    binTicks = 20;
+    width = (d3.select('.page-content')[0][0].offsetWidth - 42) - margin.left - margin.right,
+    height = (d3.select('.page-content')[0][0].offsetWidth - 42) / 1.75 - margin.top - margin.bottom,
+    binTicks = 20,
+    pathData = [];
 
   var x = d3.scale.linear()
     .domain([0, 100])
@@ -373,6 +447,12 @@ var normalDistribution = function() {
   var xAxis = d3.svg.axis()
     .scale(x)
     .orient("bottom");
+
+  var yLine = d3.scale.linear()
+    .range([height, 0])
+    .domain(d3.extent(pathData, function(d) {
+        return d.p;
+    }));
 
   var svg = d3.select(".normal-distribution")
     .attr("width", width + margin.left + margin.right)
@@ -416,6 +496,9 @@ var normalDistribution = function() {
     .attr("transform", "translate(0,17)")
     .text("sigma: " + d3.deviation(values));
 
+  drawLine(values);
+  d3.select(".line").style("opacity", 0);
+
   d3.select("#normalPoints").on("input", function(){
 
     d3.select('.normal-dist-label span').html(this.value);
@@ -433,7 +516,7 @@ var normalDistribution = function() {
     var mean = svg.select(".mean");
     var duration = 300;
 
-    y.domain([0, d3.max(newData, function(d) {return d.y; })])
+    y.domain([0, d3.max(newData, function(d) {return d.y; })]);
 
     bar.transition().duration(duration).attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
 
@@ -450,16 +533,84 @@ var normalDistribution = function() {
     stdDev.text("sigma: " + d3.deviation(newNormal));
     mean.text("mu: " + d3.mean(newNormal));
 
+    drawLine(newNormal);
+
   });
+
+  d3.select("#showCurve").on("change", function(){
+    this.checked //true when checked
+    if (this.checked) {
+      d3.select(".line").style("opacity", 1);
+    } else {
+      d3.select(".line").style("opacity", 0);
+    }
+  });
+
+  function drawLine(dataSet) {
+
+    getData(dataSet);
+
+    yLine.domain(d3.extent(pathData, function(d) {
+        return d.p;
+    }));
+
+    var line = d3.svg.area()
+      .x(function(d) {
+          return x(d.q);
+      })
+      .y0(height)
+      .y1(function(d) {
+          return yLine(d.p);
+      });
+
+    d3.select(".line").remove();
+
+    svg.append("path")
+      .datum(pathData)
+      .attr("class", "line")
+      .attr("d", line);
+
+  }
+
+  function getData(dataSet) {
+
+    pathData = [];
+
+    for (var i = 0; i < 500; i++) {
+        var which = getRandomIntInclusive(0, dataSet.length - 1);
+        q = dataSet[which]
+        p = gaussian(q, d3.mean(dataSet), d3.deviation(dataSet))
+        el = {
+            "q": q,
+            "p": p
+        }
+        pathData.push(el)
+    };
+
+    pathData.sort(function(x, y) {
+        return x.q - y.q;
+    });
+
+  };
+
+  function getRandomIntInclusive(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  function gaussian(x, mean, sigma) {
+  	var gaussianConstant = 1 / Math.sqrt(2 * Math.PI),
+      x = (x - mean) / sigma;
+      return gaussianConstant * Math.exp(-.5 * x * x) / sigma;
+  };
 
 }
 
 module.exports = normalDistribution;
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 var sampling = function() {
 
-  var width = d3.select('.page-content')[0][0].offsetWidth,
+  var width = (d3.select('.page-content')[0][0].offsetWidth - 42),
     height = width * .75,
     center = { x: width / 2, y: height / 2 },
     nodeNumber = 1000;
@@ -611,7 +762,7 @@ var sampling = function() {
 
 module.exports = sampling;
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 'use strict';
 
 var ss = require('simple-statistics');
@@ -636,7 +787,9 @@ var normal = require('./extra_modules/normal-distribution.js')();
 
 var sampling = require('./extra_modules/sampling.js')();
 
-},{"./extra_modules/box-whisker.js":1,"./extra_modules/normal-distribution.js":3,"./extra_modules/sampling.js":4,"simple-statistics":6}],6:[function(require,module,exports){
+var correlation = require('./extra_modules/correlation.js')();
+
+},{"./extra_modules/box-whisker.js":1,"./extra_modules/correlation.js":3,"./extra_modules/normal-distribution.js":4,"./extra_modules/sampling.js":5,"simple-statistics":7}],7:[function(require,module,exports){
 'use strict';
 
 // # simple-statistics
@@ -706,7 +859,7 @@ ss.inverseErrorFunction = require('./src/inverse_error_function');
 ss.probit = require('./src/probit');
 ss.mixin = require('./src/mixin');
 
-},{"./src/bayesian_classifier":7,"./src/bernoulli_distribution":8,"./src/binomial_distribution":9,"./src/chi_squared_goodness_of_fit":11,"./src/chunk":12,"./src/ckmeans":13,"./src/cumulative_std_normal_probability":14,"./src/epsilon":15,"./src/error_function":16,"./src/factorial":17,"./src/geometric_mean":18,"./src/harmonic_mean":19,"./src/interquartile_range":20,"./src/inverse_error_function":21,"./src/linear_regression":22,"./src/linear_regression_line":23,"./src/mad":24,"./src/max":25,"./src/mean":26,"./src/median":27,"./src/min":28,"./src/mixin":29,"./src/mode":30,"./src/perceptron":32,"./src/poisson_distribution":33,"./src/probit":34,"./src/quantile":35,"./src/quantile_sorted":36,"./src/r_squared":37,"./src/root_mean_square":38,"./src/sample":39,"./src/sample_correlation":40,"./src/sample_covariance":41,"./src/sample_skewness":42,"./src/sample_standard_deviation":43,"./src/sample_variance":44,"./src/shuffle":45,"./src/shuffle_in_place":46,"./src/sorted_unique_count":47,"./src/standard_deviation":48,"./src/standard_normal_table":49,"./src/sum":50,"./src/sum_nth_power_deviations":51,"./src/t_test":52,"./src/t_test_two_sample":53,"./src/variance":54,"./src/z_score":55}],7:[function(require,module,exports){
+},{"./src/bayesian_classifier":8,"./src/bernoulli_distribution":9,"./src/binomial_distribution":10,"./src/chi_squared_goodness_of_fit":12,"./src/chunk":13,"./src/ckmeans":14,"./src/cumulative_std_normal_probability":15,"./src/epsilon":16,"./src/error_function":17,"./src/factorial":18,"./src/geometric_mean":19,"./src/harmonic_mean":20,"./src/interquartile_range":21,"./src/inverse_error_function":22,"./src/linear_regression":23,"./src/linear_regression_line":24,"./src/mad":25,"./src/max":26,"./src/mean":27,"./src/median":28,"./src/min":29,"./src/mixin":30,"./src/mode":31,"./src/perceptron":33,"./src/poisson_distribution":34,"./src/probit":35,"./src/quantile":36,"./src/quantile_sorted":37,"./src/r_squared":38,"./src/root_mean_square":39,"./src/sample":40,"./src/sample_correlation":41,"./src/sample_covariance":42,"./src/sample_skewness":43,"./src/sample_standard_deviation":44,"./src/sample_variance":45,"./src/shuffle":46,"./src/shuffle_in_place":47,"./src/sorted_unique_count":48,"./src/standard_deviation":49,"./src/standard_normal_table":50,"./src/sum":51,"./src/sum_nth_power_deviations":52,"./src/t_test":53,"./src/t_test_two_sample":54,"./src/variance":55,"./src/z_score":56}],8:[function(require,module,exports){
 'use strict';
 
 /**
@@ -825,7 +978,7 @@ BayesianClassifier.prototype.score = function(item) {
 
 module.exports = BayesianClassifier;
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 var binomialDistribution = require('./binomial_distribution');
@@ -853,7 +1006,7 @@ function bernoulliDistribution(p) {
 
 module.exports = bernoulliDistribution;
 
-},{"./binomial_distribution":9}],9:[function(require,module,exports){
+},{"./binomial_distribution":10}],10:[function(require,module,exports){
 'use strict';
 
 var epsilon = require('./epsilon');
@@ -906,7 +1059,7 @@ function binomialDistribution(trials, probability) {
 
 module.exports = binomialDistribution;
 
-},{"./epsilon":15,"./factorial":17}],10:[function(require,module,exports){
+},{"./epsilon":16,"./factorial":18}],11:[function(require,module,exports){
 'use strict';
 
 /**
@@ -962,7 +1115,7 @@ var chiSquaredDistributionTable = {
 
 module.exports = chiSquaredDistributionTable;
 
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 var mean = require('./mean');
@@ -1069,7 +1222,7 @@ function chiSquaredGoodnessOfFit(data, distributionType, significance) {
 
 module.exports = chiSquaredGoodnessOfFit;
 
-},{"./chi_squared_distribution_table":10,"./mean":26}],12:[function(require,module,exports){
+},{"./chi_squared_distribution_table":11,"./mean":27}],13:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1114,7 +1267,7 @@ function chunk(sample, chunkSize) {
 
 module.exports = chunk;
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 var sortedUniqueCount = require('./sorted_unique_count'),
@@ -1297,7 +1450,7 @@ function ckmeans(data, nClusters) {
 
 module.exports = ckmeans;
 
-},{"./numeric_sort":31,"./sorted_unique_count":47}],14:[function(require,module,exports){
+},{"./numeric_sort":32,"./sorted_unique_count":48}],15:[function(require,module,exports){
 'use strict';
 
 var standardNormalTable = require('./standard_normal_table');
@@ -1341,7 +1494,7 @@ function cumulativeStdNormalProbability(z) {
 
 module.exports = cumulativeStdNormalProbability;
 
-},{"./standard_normal_table":49}],15:[function(require,module,exports){
+},{"./standard_normal_table":50}],16:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1356,7 +1509,7 @@ var epsilon = 0.0001;
 
 module.exports = epsilon;
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1394,7 +1547,7 @@ function errorFunction(x) {
 
 module.exports = errorFunction;
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1428,7 +1581,7 @@ function factorial(n) {
 
 module.exports = factorial;
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1483,7 +1636,7 @@ function geometricMean(x) {
 
 module.exports = geometricMean;
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1521,7 +1674,7 @@ function harmonicMean(x) {
 
 module.exports = harmonicMean;
 
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 'use strict';
 
 var quantile = require('./quantile');
@@ -1549,7 +1702,7 @@ function interquartileRange(sample) {
 
 module.exports = interquartileRange;
 
-},{"./quantile":35}],21:[function(require,module,exports){
+},{"./quantile":36}],22:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1577,7 +1730,7 @@ function inverseErrorFunction(x) {
 
 module.exports = inverseErrorFunction;
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1650,7 +1803,7 @@ function linearRegression(data) {
 
 module.exports = linearRegression;
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1679,7 +1832,7 @@ function linearRegressionLine(mb) {
 
 module.exports = linearRegressionLine;
 
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 'use strict';
 
 var median = require('./median');
@@ -1712,7 +1865,7 @@ function mad(x) {
 
 module.exports = mad;
 
-},{"./median":27}],25:[function(require,module,exports){
+},{"./median":28}],26:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1739,7 +1892,7 @@ function max(x) {
 
 module.exports = max;
 
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 'use strict';
 
 var sum = require('./sum');
@@ -1766,7 +1919,7 @@ function mean(x) {
 
 module.exports = mean;
 
-},{"./sum":50}],27:[function(require,module,exports){
+},{"./sum":51}],28:[function(require,module,exports){
 'use strict';
 
 var numericSort = require('./numeric_sort');
@@ -1810,7 +1963,7 @@ function median(x) {
 
 module.exports = median;
 
-},{"./numeric_sort":31}],28:[function(require,module,exports){
+},{"./numeric_sort":32}],29:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1835,7 +1988,7 @@ function min(x) {
 
 module.exports = min;
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 'use strict';
 
 /**
@@ -1915,7 +2068,7 @@ function mixin(ss, array) {
 
 module.exports = mixin;
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 'use strict';
 
 var numericSort = require('./numeric_sort');
@@ -1983,7 +2136,7 @@ function mode(x) {
 
 module.exports = mode;
 
-},{"./numeric_sort":31}],31:[function(require,module,exports){
+},{"./numeric_sort":32}],32:[function(require,module,exports){
 'use strict';
 
 /**
@@ -2014,7 +2167,7 @@ function numericSort(array) {
 
 module.exports = numericSort;
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 'use strict';
 
 /**
@@ -2111,7 +2264,7 @@ PerceptronModel.prototype.train = function(features, label) {
 
 module.exports = PerceptronModel;
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 'use strict';
 
 var epsilon = require('./epsilon');
@@ -2159,7 +2312,7 @@ function poissonDistribution(lambda) {
 
 module.exports = poissonDistribution;
 
-},{"./epsilon":15,"./factorial":17}],34:[function(require,module,exports){
+},{"./epsilon":16,"./factorial":18}],35:[function(require,module,exports){
 'use strict';
 
 var epsilon = require('./epsilon');
@@ -2189,7 +2342,7 @@ function probit(p) {
 
 module.exports = probit;
 
-},{"./epsilon":15,"./inverse_error_function":21}],35:[function(require,module,exports){
+},{"./epsilon":16,"./inverse_error_function":22}],36:[function(require,module,exports){
 'use strict';
 
 var quantileSorted = require('./quantile_sorted');
@@ -2243,7 +2396,7 @@ function quantile(sample, p) {
 
 module.exports = quantile;
 
-},{"./numeric_sort":31,"./quantile_sorted":36}],36:[function(require,module,exports){
+},{"./numeric_sort":32,"./quantile_sorted":37}],37:[function(require,module,exports){
 'use strict';
 
 /**
@@ -2286,7 +2439,7 @@ function quantileSorted(sample, p) {
 
 module.exports = quantileSorted;
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 'use strict';
 
 /**
@@ -2339,7 +2492,7 @@ function rSquared(data, func) {
 
 module.exports = rSquared;
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 'use strict';
 
 /**
@@ -2368,7 +2521,7 @@ function rootMeanSquare(x) {
 
 module.exports = rootMeanSquare;
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 'use strict';
 
 var shuffle = require('./shuffle');
@@ -2399,7 +2552,7 @@ function sample(array, n, randomSource) {
 
 module.exports = sample;
 
-},{"./shuffle":45}],40:[function(require,module,exports){
+},{"./shuffle":46}],41:[function(require,module,exports){
 'use strict';
 
 var sampleCovariance = require('./sample_covariance');
@@ -2431,7 +2584,7 @@ function sampleCorrelation(x, y) {
 
 module.exports = sampleCorrelation;
 
-},{"./sample_covariance":41,"./sample_standard_deviation":43}],41:[function(require,module,exports){
+},{"./sample_covariance":42,"./sample_standard_deviation":44}],42:[function(require,module,exports){
 'use strict';
 
 var mean = require('./mean');
@@ -2483,7 +2636,7 @@ function sampleCovariance(x, y) {
 
 module.exports = sampleCovariance;
 
-},{"./mean":26}],42:[function(require,module,exports){
+},{"./mean":27}],43:[function(require,module,exports){
 'use strict';
 
 var sumNthPowerDeviations = require('./sum_nth_power_deviations');
@@ -2518,7 +2671,7 @@ function sampleSkewness(x) {
 
 module.exports = sampleSkewness;
 
-},{"./sample_standard_deviation":43,"./sum_nth_power_deviations":51}],43:[function(require,module,exports){
+},{"./sample_standard_deviation":44,"./sum_nth_power_deviations":52}],44:[function(require,module,exports){
 'use strict';
 
 var sampleVariance = require('./sample_variance');
@@ -2542,7 +2695,7 @@ function sampleStandardDeviation(x) {
 
 module.exports = sampleStandardDeviation;
 
-},{"./sample_variance":44}],44:[function(require,module,exports){
+},{"./sample_variance":45}],45:[function(require,module,exports){
 'use strict';
 
 var sumNthPowerDeviations = require('./sum_nth_power_deviations');
@@ -2580,7 +2733,7 @@ function sampleVariance(x) {
 
 module.exports = sampleVariance;
 
-},{"./sum_nth_power_deviations":51}],45:[function(require,module,exports){
+},{"./sum_nth_power_deviations":52}],46:[function(require,module,exports){
 'use strict';
 
 var shuffleInPlace = require('./shuffle_in_place');
@@ -2608,7 +2761,7 @@ function shuffle(sample, randomSource) {
 
 module.exports = shuffle;
 
-},{"./shuffle_in_place":46}],46:[function(require,module,exports){
+},{"./shuffle_in_place":47}],47:[function(require,module,exports){
 'use strict';
 
 /*
@@ -2664,7 +2817,7 @@ function shuffleInPlace(sample, randomSource) {
 
 module.exports = shuffleInPlace;
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 'use strict';
 
 /**
@@ -2695,7 +2848,7 @@ function sortedUniqueCount(input) {
 
 module.exports = sortedUniqueCount;
 
-},{}],48:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 'use strict';
 
 var variance = require('./variance');
@@ -2725,7 +2878,7 @@ function standardDeviation(x) {
 
 module.exports = standardDeviation;
 
-},{"./variance":54}],49:[function(require,module,exports){
+},{"./variance":55}],50:[function(require,module,exports){
 'use strict';
 
 var SQRT_2PI = Math.sqrt(2 * Math.PI);
@@ -2763,7 +2916,7 @@ for (var z = 0; z <= 3.09; z += 0.01) {
 
 module.exports = standardNormalTable;
 
-},{}],50:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 'use strict';
 
 /**
@@ -2787,7 +2940,7 @@ function sum(x) {
 
 module.exports = sum;
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 'use strict';
 
 var mean = require('./mean');
@@ -2819,7 +2972,7 @@ function sumNthPowerDeviations(x, n) {
 
 module.exports = sumNthPowerDeviations;
 
-},{"./mean":26}],52:[function(require,module,exports){
+},{"./mean":27}],53:[function(require,module,exports){
 'use strict';
 
 var standardDeviation = require('./standard_deviation');
@@ -2859,7 +3012,7 @@ function tTest(sample, x) {
 
 module.exports = tTest;
 
-},{"./mean":26,"./standard_deviation":48}],53:[function(require,module,exports){
+},{"./mean":27,"./standard_deviation":49}],54:[function(require,module,exports){
 'use strict';
 
 var mean = require('./mean');
@@ -2916,7 +3069,7 @@ function tTestTwoSample(sampleX, sampleY, difference) {
 
 module.exports = tTestTwoSample;
 
-},{"./mean":26,"./sample_variance":44}],54:[function(require,module,exports){
+},{"./mean":27,"./sample_variance":45}],55:[function(require,module,exports){
 'use strict';
 
 var sumNthPowerDeviations = require('./sum_nth_power_deviations');
@@ -2945,7 +3098,7 @@ function variance(x) {
 
 module.exports = variance;
 
-},{"./sum_nth_power_deviations":51}],55:[function(require,module,exports){
+},{"./sum_nth_power_deviations":52}],56:[function(require,module,exports){
 'use strict';
 
 /**
@@ -2977,4 +3130,4 @@ function zScore(x, mean, standardDeviation) {
 
 module.exports = zScore;
 
-},{}]},{},[5])
+},{}]},{},[6])

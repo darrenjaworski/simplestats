@@ -21,3 +21,5 @@ var boxWhisker = require('./extra_modules/box-whisker.js')(simpleDataset);
 var normal = require('./extra_modules/normal-distribution.js')();
 
 var sampling = require('./extra_modules/sampling.js')();
+
+var correlation = require('./extra_modules/correlation.js')();
