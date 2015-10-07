@@ -3,7 +3,7 @@ var sampling = function() {
   var width = (d3.select('.page-content')[0][0].offsetWidth - 42),
     height = width * .75,
     center = { x: width / 2, y: height / 2 },
-    nodeNumber = 1000;
+    nodeNumber = 600;
 
   var color = d3.scale.ordinal()
     .range(["#2ca02c", "#d62728", "#1f77b4"]);
