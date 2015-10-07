@@ -516,7 +516,7 @@ var normalDistribution = function() {
     var mean = svg.select(".mean");
     var duration = 300;
 
-    y.domain([0, d3.max(newData, function(d) {return d.y; })]);
+    y.domain([0, d3.max(newData, function(d) { return d.y; })]);
 
     bar.transition().duration(duration).attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
 
@@ -540,7 +540,7 @@ var normalDistribution = function() {
   d3.select("#showCurve").on("change", function(){
     this.checked //true when checked
     if (this.checked) {
-      d3.select(".line").style("opacity", 1);
+      d3.select(".line").style("opacity", .75);
     } else {
       d3.select(".line").style("opacity", 0);
     }
@@ -568,7 +568,14 @@ var normalDistribution = function() {
     svg.append("path")
       .datum(pathData)
       .attr("class", "line")
-      .attr("d", line);
+      .attr("d", line)
+      .style("opacity", function(){
+        if (d3.select("#showCurve")[0][0].checked) {
+          return .75;
+        } else {
+          return 0;
+        }
+      });
 
   }
 
