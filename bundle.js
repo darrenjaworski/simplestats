@@ -497,7 +497,6 @@ var normalDistribution = function() {
     .text("sigma: " + d3.deviation(values));
 
   drawLine(values);
-  d3.select(".line").style("opacity", 0);
 
   d3.select("#normalPoints").on("input", function(){
 
