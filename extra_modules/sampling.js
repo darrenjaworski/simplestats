@@ -8,10 +8,8 @@ var sampling = function() {
   var color = d3.scale.ordinal()
     .range(["#2ca02c", "#d62728", "#1f77b4"]);
 
-  var nodes = d3.range(nodeNumber).map(function(i) {
-    return {
-      color: ~~(Math.random() * 3) + 1
-    }
+  var nodes = d3.range(nodeNumber).map(function() {
+    return { color: ~~(Math.random() * 3) + 1 };
   });
 
   d3.select('.sample-population').html(nodeNumber)
@@ -25,7 +23,6 @@ var sampling = function() {
     .append("g");
 
   function update(data) {
-
     var force = d3.layout.force()
       .nodes(data)
       .size([width, height])
@@ -52,7 +49,6 @@ var sampling = function() {
       .duration(750)
       .attr("r", 0)
       .remove();
-
   }
 
   svg.style("opacity", 1e-6)
@@ -64,7 +60,7 @@ var sampling = function() {
 
   var display = svg.append("g")
     .attr("class", "population")
-    .attr("transform", "translate(30,30)")
+    .attr("transform", "translate(30,30)");
 
   display.append("text")
     .text("population");
@@ -119,28 +115,21 @@ var sampling = function() {
       .attr("transform", function(d, i) {return "translate(0, " + 16 * (i + 1)+")";})
       .style("fill", function(d) {return color(d.key); })
       .text(function(d, i) { return d.values.length + " (" + (d.values.length / amount) + ")"; });
-
   }
 
   function removeSample(data) {
-
-    update(data)
-
+    update(data);
     d3.select('.sample').remove();
-
   }
 
   var sampleSize = 50;
 
   d3.select("#sampleSize").on("input", function(){
-
     sampleSize = this.value;
-    d3.select(".sampleSize-dist-label span").html(this.value)
-
-  })
+    d3.select(".sampleSize-dist-label span").html(sampleSize);
+  });
 
   d3.select("#sampleSwitch").on("change", function(){
-    this.checked //true when checked
     if (this.checked) {
       takeSample(sampleSize);
     } else {
@@ -148,6 +137,6 @@ var sampling = function() {
     }
   });
 
-}
+};
 
 module.exports = sampling;
