@@ -1,0 +1,62 @@
+.page-content {
+  max-width: 43em;
+  margin: auto;
+  padding: 0 1.5em;
+}
+section {
+  padding: 0 0 3em;
+}
+p, li {
+  font-size: 16px;
+}
+
+.box {
+  font: 14px sans-serif;
+}
+
+.box line,
+.box rect,
+.box circle {
+  fill: steelblue;
+  stroke: rgba(0,0,0,.87);
+  stroke-width: 1px;
+}
+
+.box .center {
+  stroke-dasharray: 3,3;
+}
+
+.box .outlier {
+  fill: none;
+  stroke: rgba(0,0,0,.87);
+}
+
+.central-tendency text {
+  font: 14px sans-serif;
+  fill: rgba(0,0,0,.87);
+}
+
+.bar rect {
+  fill: steelblue;
+  shape-rendering: crispEdges;
+}
+
+.bar text {
+  fill: rgba(0,0,0,.87);
+  font: 12px sans-serif;
+}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: rgba(0,0,0,.87);
+  shape-rendering: crispEdges;
+}
+
+.line {
+  fill: rgb(255, 193, 7);
+}
+
+.dot {
+  stroke: steelblue;
+  fill: steelblue;
+}
