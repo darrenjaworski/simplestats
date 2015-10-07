@@ -146,13 +146,7 @@ var normalDistribution = function() {
       .datum(pathData)
       .attr("class", "line")
       .attr("d", line)
-      .style("opacity", function(){
-        if (d3.select("#showCurve")[0][0].checked) {
-          return .75;
-        } else {
-          return 0;
-        }
-      });
+      .style("opacity", function(){ return d3.select("#showCurve")[0][0].checked ? .75 : 0; });
 
   }
 
