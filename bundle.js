@@ -485,7 +485,7 @@ var normalDistribution = function() {
 
   var display = svg.append("g")
     .attr("class", "central-tendency")
-    .attr("transform", "translate(0,0)")
+    .attr("transform", "translate(0,0)");
 
   display.append("text")
     .attr("class", "mean")
@@ -538,30 +538,21 @@ var normalDistribution = function() {
   });
 
   d3.select("#showCurve").on("change", function(){
-    this.checked //true when checked
-    if (this.checked) {
-      d3.select(".line").style("opacity", .75);
-    } else {
-      d3.select(".line").style("opacity", 0);
-    }
+    var show = this.checked;
+    d3.select(".line")
+      .style("opacity", function(){ return show ? .75 : 0; });
   });
 
   function drawLine(dataSet) {
 
     getData(dataSet);
 
-    yLine.domain(d3.extent(pathData, function(d) {
-        return d.p;
-    }));
+    yLine.domain(d3.extent(pathData, function(d) { return d.p; }));
 
     var line = d3.svg.area()
-      .x(function(d) {
-          return x(d.q);
-      })
+      .x(function(d) { return x(d.q); })
       .y0(height)
-      .y1(function(d) {
-          return yLine(d.p);
-      });
+      .y1(function(d) { return yLine(d.p); });
 
     d3.select(".line").remove();
 
@@ -574,24 +565,20 @@ var normalDistribution = function() {
   }
 
   function getData(dataSet) {
-
     pathData = [];
 
     for (var i = 0; i < 500; i++) {
-        var which = getRandomIntInclusive(0, dataSet.length - 1);
-        q = dataSet[which]
-        p = gaussian(q, d3.mean(dataSet), d3.deviation(dataSet))
-        el = {
-            "q": q,
-            "p": p
-        }
-        pathData.push(el)
+      var which = getRandomIntInclusive(0, dataSet.length - 1);
+      q = dataSet[which]
+      p = gaussian(q, d3.mean(dataSet), d3.deviation(dataSet))
+      el = {
+          "q": q,
+          "p": p
+      }
+      pathData.push(el)
     };
 
-    pathData.sort(function(x, y) {
-        return x.q - y.q;
-    });
-
+    pathData.sort(function(x, y) { return x.q - y.q; });
   };
 
   function getRandomIntInclusive(min, max) {
@@ -601,7 +588,8 @@ var normalDistribution = function() {
   function gaussian(x, mean, sigma) {
   	var gaussianConstant = 1 / Math.sqrt(2 * Math.PI),
       x = (x - mean) / sigma;
-      return gaussianConstant * Math.exp(-.5 * x * x) / sigma;
+
+    return gaussianConstant * Math.exp(-.5 * x * x) / sigma;
   };
 
 }
@@ -619,10 +607,8 @@ var sampling = function() {
   var color = d3.scale.ordinal()
     .range(["#2ca02c", "#d62728", "#1f77b4"]);
 
-  var nodes = d3.range(nodeNumber).map(function(i) {
-    return {
-      color: ~~(Math.random() * 3) + 1
-    }
+  var nodes = d3.range(nodeNumber).map(function() {
+    return { color: ~~(Math.random() * 3) + 1 };
   });
 
   d3.select('.sample-population').html(nodeNumber)
@@ -636,7 +622,6 @@ var sampling = function() {
     .append("g");
 
   function update(data) {
-
     var force = d3.layout.force()
       .nodes(data)
       .size([width, height])
@@ -663,7 +648,6 @@ var sampling = function() {
       .duration(750)
       .attr("r", 0)
       .remove();
-
   }
 
   svg.style("opacity", 1e-6)
@@ -675,7 +659,7 @@ var sampling = function() {
 
   var display = svg.append("g")
     .attr("class", "population")
-    .attr("transform", "translate(30,30)")
+    .attr("transform", "translate(30,30)");
 
   display.append("text")
     .text("population");
@@ -730,28 +714,21 @@ var sampling = function() {
       .attr("transform", function(d, i) {return "translate(0, " + 16 * (i + 1)+")";})
       .style("fill", function(d) {return color(d.key); })
       .text(function(d, i) { return d.values.length + " (" + (d.values.length / amount) + ")"; });
-
   }
 
   function removeSample(data) {
-
-    update(data)
-
+    update(data);
     d3.select('.sample').remove();
-
   }
 
   var sampleSize = 50;
 
   d3.select("#sampleSize").on("input", function(){
-
     sampleSize = this.value;
-    d3.select(".sampleSize-dist-label span").html(this.value)
-
-  })
+    d3.select(".sampleSize-dist-label span").html(sampleSize);
+  });
 
   d3.select("#sampleSwitch").on("change", function(){
-    this.checked //true when checked
     if (this.checked) {
       takeSample(sampleSize);
     } else {
@@ -759,7 +736,7 @@ var sampling = function() {
     }
   });
 
-}
+};
 
 module.exports = sampling;
 

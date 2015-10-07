@@ -62,7 +62,7 @@ var normalDistribution = function() {
 
   var display = svg.append("g")
     .attr("class", "central-tendency")
-    .attr("transform", "translate(0,0)")
+    .attr("transform", "translate(0,0)");
 
   display.append("text")
     .attr("class", "mean")
@@ -115,30 +115,21 @@ var normalDistribution = function() {
   });
 
   d3.select("#showCurve").on("change", function(){
-    this.checked //true when checked
-    if (this.checked) {
-      d3.select(".line").style("opacity", .75);
-    } else {
-      d3.select(".line").style("opacity", 0);
-    }
+    var show = this.checked;
+    d3.select(".line")
+      .style("opacity", function(){ return show ? .75 : 0; });
   });
 
   function drawLine(dataSet) {
 
     getData(dataSet);
 
-    yLine.domain(d3.extent(pathData, function(d) {
-        return d.p;
-    }));
+    yLine.domain(d3.extent(pathData, function(d) { return d.p; }));
 
     var line = d3.svg.area()
-      .x(function(d) {
-          return x(d.q);
-      })
+      .x(function(d) { return x(d.q); })
       .y0(height)
-      .y1(function(d) {
-          return yLine(d.p);
-      });
+      .y1(function(d) { return yLine(d.p); });
 
     d3.select(".line").remove();
 
@@ -151,24 +142,20 @@ var normalDistribution = function() {
   }
 
   function getData(dataSet) {
-
     pathData = [];
 
     for (var i = 0; i < 500; i++) {
-        var which = getRandomIntInclusive(0, dataSet.length - 1);
-        q = dataSet[which]
-        p = gaussian(q, d3.mean(dataSet), d3.deviation(dataSet))
-        el = {
-            "q": q,
-            "p": p
-        }
-        pathData.push(el)
+      var which = getRandomIntInclusive(0, dataSet.length - 1);
+      q = dataSet[which]
+      p = gaussian(q, d3.mean(dataSet), d3.deviation(dataSet))
+      el = {
+          "q": q,
+          "p": p
+      }
+      pathData.push(el)
     };
 
-    pathData.sort(function(x, y) {
-        return x.q - y.q;
-    });
-
+    pathData.sort(function(x, y) { return x.q - y.q; });
   };
 
   function getRandomIntInclusive(min, max) {
@@ -178,7 +165,8 @@ var normalDistribution = function() {
   function gaussian(x, mean, sigma) {
   	var gaussianConstant = 1 / Math.sqrt(2 * Math.PI),
       x = (x - mean) / sigma;
-      return gaussianConstant * Math.exp(-.5 * x * x) / sigma;
+
+    return gaussianConstant * Math.exp(-.5 * x * x) / sigma;
   };
 
 }
