@@ -8,13 +8,15 @@ var simpleDataset = d3.range(15).map(function(i) {
     return a - b;
   });
 
-d3.select('.simple-dataset').html(simpleDataset);
-d3.select('.mean').html(d3.mean(simpleDataset));
+var format = d3.format(".02f");
+
+d3.select('.simple-dataset').html("[ " + simpleDataset.join(', ') + " ]");
+d3.select('.mean').html( format(d3.mean(simpleDataset)) );
 d3.select('.median').html(d3.median(simpleDataset));
 d3.select('.range').html(d3.max(simpleDataset) - d3.min(simpleDataset));
 d3.select('.mode').html(ss.mode(simpleDataset));
-d3.select('.variance').html(d3.variance(simpleDataset));
-d3.select('.standard-deviation').html(d3.deviation(simpleDataset))
+d3.select('.variance').html( format(d3.variance(simpleDataset)) );
+d3.select('.standard-deviation').html( format(d3.deviation(simpleDataset)) );
 
 var boxWhisker = require('./extra_modules/box-whisker.js')(simpleDataset);
 

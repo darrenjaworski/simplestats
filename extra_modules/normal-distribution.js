@@ -8,7 +8,8 @@ var normalDistribution = function() {
     width = (d3.select('.page-content')[0][0].offsetWidth - 42) - margin.left - margin.right,
     height = (d3.select('.page-content')[0][0].offsetWidth - 42) / 1.75 - margin.top - margin.bottom,
     binTicks = 20,
-    pathData = [];
+    pathData = [],
+    format = d3.format(".02f");
 
   var x = d3.scale.linear()
     .domain([0, 100])
@@ -66,12 +67,12 @@ var normalDistribution = function() {
 
   display.append("text")
     .attr("class", "mean")
-    .text("mu: " + d3.mean(values));
+    .text("mu: " + format(d3.mean(values)) );
 
   display.append("text")
     .attr("class", "standard-deviation")
     .attr("transform", "translate(0,17)")
-    .text("sigma: " + d3.deviation(values));
+    .text("sigma: " + format(d3.deviation(values)) );
 
   drawCurve(values);
 
@@ -106,8 +107,8 @@ var normalDistribution = function() {
     bar.select("text")
       .text(function(d) { return d.y > 0 ? d.y : ""; });
 
-    stdDev.text("sigma: " + d3.deviation(newNormal));
-    mean.text("mu: " + d3.mean(newNormal));
+    stdDev.text("sigma: " + format(d3.deviation(newNormal)) );
+    mean.text("mu: " + format(d3.mean(newNormal)) );
 
     drawCurve(newNormal);
 

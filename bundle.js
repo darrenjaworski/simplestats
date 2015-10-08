@@ -431,7 +431,8 @@ var normalDistribution = function() {
     width = (d3.select('.page-content')[0][0].offsetWidth - 42) - margin.left - margin.right,
     height = (d3.select('.page-content')[0][0].offsetWidth - 42) / 1.75 - margin.top - margin.bottom,
     binTicks = 20,
-    pathData = [];
+    pathData = [],
+    format = d3.format(".02f");
 
   var x = d3.scale.linear()
     .domain([0, 100])
@@ -489,12 +490,12 @@ var normalDistribution = function() {
 
   display.append("text")
     .attr("class", "mean")
-    .text("mu: " + d3.mean(values));
+    .text("mu: " + format(d3.mean(values)) );
 
   display.append("text")
     .attr("class", "standard-deviation")
     .attr("transform", "translate(0,17)")
-    .text("sigma: " + d3.deviation(values));
+    .text("sigma: " + format(d3.deviation(values)) );
 
   drawCurve(values);
 
@@ -529,8 +530,8 @@ var normalDistribution = function() {
     bar.select("text")
       .text(function(d) { return d.y > 0 ? d.y : ""; });
 
-    stdDev.text("sigma: " + d3.deviation(newNormal));
-    mean.text("mu: " + d3.mean(newNormal));
+    stdDev.text("sigma: " + format(d3.deviation(newNormal)) );
+    mean.text("mu: " + format(d3.mean(newNormal)) );
 
     drawCurve(newNormal);
 
@@ -601,7 +602,8 @@ var sampling = function() {
   var width = (d3.select('.page-content')[0][0].offsetWidth - 42),
     height = width * .75,
     center = { x: width / 2, y: height / 2 },
-    nodeNumber = 600;
+    nodeNumber = 600,
+    format = d3.format(".02f");
 
   var color = d3.scale.ordinal()
     .range(["#2ca02c", "#d62728", "#1f77b4"]);
@@ -674,7 +676,7 @@ var sampling = function() {
     .attr("class", ".total")
     .attr("transform", function(d, i) {return "translate(0, " + 16 * (i + 1)+")";})
     .style("fill", function(d) {return color(d.key); })
-    .text(function(d, i) { return d.values.length + " (" + (d.values.length / nodeNumber) + ")"; });
+    .text(function(d, i) { return d.values.length + " (" + format((d.values.length / nodeNumber)) + ")"; });
 
   function tick(e) {
     var k = .7 * e.alpha;
@@ -712,7 +714,7 @@ var sampling = function() {
       .attr("class", ".total")
       .attr("transform", function(d, i) {return "translate(0, " + 16 * (i + 1)+")";})
       .style("fill", function(d) {return color(d.key); })
-      .text(function(d, i) { return d.values.length + " (" + (d.values.length / amount) + ")"; });
+      .text(function(d, i) { return d.values.length + " (" + format((d.values.length / amount)) + ")"; });
   }
 
   function removeSample(data) {
@@ -750,13 +752,15 @@ var simpleDataset = d3.range(15).map(function(i) {
     return a - b;
   });
 
-d3.select('.simple-dataset').html(simpleDataset);
-d3.select('.mean').html(d3.mean(simpleDataset));
+var format = d3.format(".02f");
+
+d3.select('.simple-dataset').html("[ " + simpleDataset.join(', ') + " ]");
+d3.select('.mean').html( format(d3.mean(simpleDataset)) );
 d3.select('.median').html(d3.median(simpleDataset));
 d3.select('.range').html(d3.max(simpleDataset) - d3.min(simpleDataset));
 d3.select('.mode').html(ss.mode(simpleDataset));
-d3.select('.variance').html(d3.variance(simpleDataset));
-d3.select('.standard-deviation').html(d3.deviation(simpleDataset))
+d3.select('.variance').html( format(d3.variance(simpleDataset)) );
+d3.select('.standard-deviation').html( format(d3.deviation(simpleDataset)) );
 
 var boxWhisker = require('./extra_modules/box-whisker.js')(simpleDataset);
 

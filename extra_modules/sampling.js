@@ -3,7 +3,8 @@ var sampling = function() {
   var width = (d3.select('.page-content')[0][0].offsetWidth - 42),
     height = width * .75,
     center = { x: width / 2, y: height / 2 },
-    nodeNumber = 600;
+    nodeNumber = 600,
+    format = d3.format(".02f");
 
   var color = d3.scale.ordinal()
     .range(["#2ca02c", "#d62728", "#1f77b4"]);
@@ -76,7 +77,7 @@ var sampling = function() {
     .attr("class", ".total")
     .attr("transform", function(d, i) {return "translate(0, " + 16 * (i + 1)+")";})
     .style("fill", function(d) {return color(d.key); })
-    .text(function(d, i) { return d.values.length + " (" + (d.values.length / nodeNumber) + ")"; });
+    .text(function(d, i) { return d.values.length + " (" + format((d.values.length / nodeNumber)) + ")"; });
 
   function tick(e) {
     var k = .7 * e.alpha;
@@ -114,7 +115,7 @@ var sampling = function() {
       .attr("class", ".total")
       .attr("transform", function(d, i) {return "translate(0, " + 16 * (i + 1)+")";})
       .style("fill", function(d) {return color(d.key); })
-      .text(function(d, i) { return d.values.length + " (" + (d.values.length / amount) + ")"; });
+      .text(function(d, i) { return d.values.length + " (" + format((d.values.length / amount)) + ")"; });
   }
 
   function removeSample(data) {
