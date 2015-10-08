@@ -1,3 +1,10 @@
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
 .page-content {
   max-width: 43em;
   margin: auto;
@@ -59,4 +66,8 @@ p, li {
 .dot {
   stroke: steelblue;
   fill: steelblue;
+}
+
+.number {
+  font-weight: 600;
 }
