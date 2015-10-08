@@ -20,7 +20,7 @@ gulp.task('serve', function(){
 
 gulp.task('watch', function(){
   gulp.watch(['./script.js', './extra_modules/*.js'], ['scripts']);
-  gulp.watch(['./bundle.js', './*.html']).on('change', browserSync.reload);
+  gulp.watch(['./bundle.js', './*.html', './*.css']).on('change', browserSync.reload);
 })
 
 gulp.task('default', ['scripts', 'serve', 'watch']);
