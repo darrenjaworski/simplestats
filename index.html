@@ -116,9 +116,17 @@
           <p>Once you're happy with our population. Click the switch to take a sample from the population. In this case we'll start with a <strong>simple random sample</strong>. Which means each circle has an equal chance to be selected and can only be selected only once, which is referred to as sampling without replacement.</p>
           <svg class="sampling-population"></svg>
           <p>
-            <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="sampleSwitch">
-              <input type="checkbox" id="sampleSwitch" class="mdl-switch__input"/>
-              <span class="mdl-switch__label">sample</span>
+            <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="population">
+              <input type="radio" id="population" class="mdl-radio__button" name="options" value="population" checked />
+              <span class="mdl-radio__label">population</span>
+            </label>
+            <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="sampleSwitch">
+              <input type="radio" id="sampleSwitch" class="mdl-radio__button" name="options" value="simple" />
+              <span class="mdl-radio__label">simple random</span>
+            </label>
+            <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="stratifiedSwitch">
+              <input type="radio" id="stratifiedSwitch" class="mdl-radio__button" name="options" value="stratified" />
+              <span class="mdl-radio__label">stratified random</span>
             </label>
           </p>
           <p>
@@ -128,6 +136,7 @@
           <p>The first thing you'll notice when playing with the sample size is just how much your representation of each color can vary from sample to sample. Intuitively, the larger your sample size the more likely the sample is to be a closer approximation to the population and thus representative.</p>
 
           <h3>stratified random sampling</h3>
+          <p>Next try pressing the <strong>stratified random</strong> input. Notice anything different? In this case the sample is divided by color, which is our strata, or layers. Once we have divided our population into strata we can then take a simple random sample from each strata that is proportional to their representation in the population. For instance, if blue was 20% of the population and our sample size was 50, we would take a simple random sample of 10 blue circles.</p>
 
         </section>
         <section id="inferential-statistics">

@@ -71,3 +71,7 @@ p, li {
 .number {
   font-weight: 600;
 }
+
+#sampling .mdl-radio.is-upgraded {
+  padding-right: 12px;
+}

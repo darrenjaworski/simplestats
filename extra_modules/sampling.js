@@ -9,8 +9,10 @@ var sampling = function() {
   var color = d3.scale.ordinal()
     .range(["#2ca02c", "#d62728", "#1f77b4"]);
 
-  var nodes = d3.range(nodeNumber).map(function() {
-    return { color: ~~(Math.random() * 3) + 1 };
+  var nodes = d3.range(nodeNumber).map(function(d, i) {
+    return {
+      id: i,
+      color: ~~(Math.random() * 3) + 1 };
   });
 
   d3.select('.sample-population').html(nodeNumber)
@@ -31,7 +33,7 @@ var sampling = function() {
       .start();
 
     var node = svg.selectAll(".node")
-      .data(data);
+      .data(data, function(d) { return d.id; });
 
     node.transition()
       .duration(750)
@@ -97,6 +99,8 @@ var sampling = function() {
 
     update(simpleRandomSample);
 
+    d3.select('.sample').remove();
+
     var sampleDisplay = svg.append("g")
       .attr("class", "sample")
       .attr("transform", "translate(30,100)");
@@ -118,6 +122,43 @@ var sampling = function() {
       .text(function(d, i) { return d.values.length + " (" + format((d.values.length / amount)) + ")"; });
   }
 
+  function stratifiedSample(amount) {
+
+    var nested = d3.nest()
+      .key(function(d){ return d.color;})
+      .entries(nodes);
+
+    var sample = nested.map(function(d){
+      var StratAmount = d.values.length / nodes.length * amount;
+      return ss.sample(d.values, ~~StratAmount);
+    }).reduce(function(a, b){ return a.concat(b); });
+
+    update(sample);
+
+    d3.select('.sample').remove();
+
+    var sampleDisplay = svg.append("g")
+      .attr("class", "sample")
+      .attr("transform", "translate(30,100)");
+
+    sampleDisplay.append("text")
+      .text("sample");
+
+    var nestedSample = d3.nest()
+      .key(function(d){ return d.color;})
+      .entries(sample);
+
+    sampleDisplay.selectAll(".total")
+      .data(nestedSample)
+      .enter()
+      .append("text")
+      .attr("class", ".total")
+      .attr("transform", function(d, i) {return "translate(0, " + 16 * (i + 1)+")";})
+      .style("fill", function(d) {return color(d.key); })
+      .text(function(d, i) { return d.values.length + " (" + format((d.values.length / amount)) + ")"; });
+
+  }
+
   function removeSample(data) {
     update(data);
     d3.select('.sample').remove();
@@ -130,10 +171,15 @@ var sampling = function() {
     d3.select(".sampleSize-dist-label span").html(sampleSize);
   });
 
-  d3.select("#sampleSwitch").on("change", function(){
-    if (this.checked) {
-      takeSample(sampleSize);
-    } else {
+  d3.selectAll("#sampling .mdl-radio input").on("change", function(){
+    switch (this.value) {
+      case 'simple':
+        takeSample(sampleSize);
+        break;
+      case 'stratified':
+        stratifiedSample(sampleSize);
+        break;
+      default:
       removeSample(nodes);
     }
   });
