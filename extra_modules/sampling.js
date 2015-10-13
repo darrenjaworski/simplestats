@@ -180,7 +180,7 @@ var sampling = function() {
         stratifiedSample(sampleSize);
         break;
       default:
-      removeSample(nodes);
+        removeSample(nodes);
     }
   });
 
