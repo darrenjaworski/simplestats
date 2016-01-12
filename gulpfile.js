@@ -1,21 +1,25 @@
-var gulp = require('gulp'),
-  browserSync = require('browser-sync').create(),
-  browserify = require('gulp-browserify'),
-  rename = require('gulp-rename');
+var gulp = require('gulp');
+var browserify = require('browserify');
+var browserSync = require('browser-sync').create();
+var source = require('vinyl-source-stream');
 
 gulp.task('scripts', function() {
-  gulp.src('script.js')
-    .pipe(browserify())
-    .pipe(rename('bundle.js'))
+
+  return browserify('./script.js')
+    .bundle()
+    .pipe(source('bundle.js'))
     .pipe(gulp.dest('./'));
+
 });
 
 gulp.task('serve', function(){
-  browserSync.init({
+
+  return browserSync.init({
     server: {
       baseDir: './'
     }
   });
+
 })
 
 gulp.task('watch', function(){
