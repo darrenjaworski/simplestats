@@ -1,13 +1,18 @@
 var gulp = require('gulp');
 var browserify = require('browserify');
 var browserSync = require('browser-sync').create();
+var sourcemaps = require('gulp-sourcemaps');
 var source = require('vinyl-source-stream');
+var buffer = require('vinyl-buffer');
 
 gulp.task('scripts', function() {
 
   return browserify('./script.js')
     .bundle()
     .pipe(source('bundle.js'))
+    .pipe(buffer())
+    .pipe(sourcemaps.init())
+    .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('./'));
 
 });
