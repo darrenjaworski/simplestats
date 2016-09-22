@@ -1,7 +1,7 @@
 var sampling = function() {
 
   var width = (d3.select('.page-content')[0][0].offsetWidth - 42),
-    height = width * .75,
+    height = width * 0.75,
     center = { x: width / 2, y: height / 2 },
     nodeNumber = 600,
     format = d3.format(".02f");
@@ -15,7 +15,7 @@ var sampling = function() {
       color: ~~(Math.random() * 3) + 1 };
   });
 
-  d3.select('.sample-population').html(nodeNumber)
+  d3.select('.sample-population').html(nodeNumber);
   d3.select('.green-sample').style("color", color(1));
   d3.select('.red-sample').style("color", color(2));
   d3.select('.blue-sample').style("color", color(3));
@@ -82,7 +82,7 @@ var sampling = function() {
     .text(function(d, i) { return d.values.length + " (" + format((d.values.length / nodeNumber)) + ")"; });
 
   function tick(e) {
-    var k = .7 * e.alpha;
+    var k = 0.7 * e.alpha;
 
     nodes.forEach(function(d) {
       d.x = d.x + (center.x - d.x) * k;

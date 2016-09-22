@@ -14,8 +14,8 @@ var descriptive = function(data) {
   d3.selectAll('.standard-deviation').html( format(sigma) );
 
   var x = data[ ~~(Math.random() * data.length - 1) ];
-  d3.select('.z-score').html( format( (x - mean) / sigma ) )
-  d3.selectAll('.z-point').html(x)
+  d3.select('.z-score').html( format( (x - mean) / sigma ) );
+  d3.selectAll('.z-point').html(x);
 
 };
 

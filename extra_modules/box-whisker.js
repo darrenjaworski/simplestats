@@ -17,7 +17,7 @@ var boxWhisker = function(data) {
 
   var svg = d3.select(".box")
       .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.bottom + margin.top)
+      .attr("height", height + margin.bottom + margin.top);
 
   svg.selectAll('.box-whisker')
     .data(array)
@@ -31,14 +31,14 @@ var boxWhisker = function(data) {
       var q1 = d.quartiles[0],
           q3 = d.quartiles[2],
           iqr = (q3 - q1) * k,
-          i = -1,
           j = d.length;
+      i = -1;
       while (d[++i] < q1 - iqr);
       while (d[--j] > q3 + iqr);
       return [i, j];
     };
   }
 
-}
+};
 
 module.exports = boxWhisker;

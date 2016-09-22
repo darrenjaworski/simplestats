@@ -117,7 +117,7 @@ var normalDistribution = function() {
   d3.select("#showCurve").on("change", function(){
     var show = this.checked;
     d3.select(".area")
-      .style("opacity", function(){ return show ? .75 : 0; });
+      .style("opacity", function(){ return show ? 0.75 : 0; });
   });
 
   function drawCurve(dataSet) {
@@ -137,7 +137,7 @@ var normalDistribution = function() {
       .datum(pathData)
       .attr("class", "area")
       .attr("d", area)
-      .style("opacity", function(){ return d3.select("#showCurve")[0][0].checked ? .75 : 0; });
+      .style("opacity", function(){ return d3.select("#showCurve")[0][0].checked ? 0.75 : 0; });
 
   }
 
@@ -146,29 +146,29 @@ var normalDistribution = function() {
 
     for (var i = 0; i < 500; i++) {
       var which = getRandomIntInclusive(0, dataSet.length - 1);
-      q = dataSet[which]
-      p = gaussian(q, d3.mean(dataSet), d3.deviation(dataSet))
+      q = dataSet[which];
+      p = gaussian(q, d3.mean(dataSet), d3.deviation(dataSet));
       el = {
           "q": q,
           "p": p
-      }
-      pathData.push(el)
-    };
+      };
+      pathData.push(el);
+    }
 
     pathData.sort(function(x, y) { return x.q - y.q; });
-  };
+  }
 
   function getRandomIntInclusive(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
   function gaussian(x, mean, sigma) {
-  	var gaussianConstant = 1 / Math.sqrt(2 * Math.PI),
-      x = (x - mean) / sigma;
+  	var gaussianConstant = 1 / Math.sqrt(2 * Math.PI);
+    x = (x - mean) / sigma;
 
-    return gaussianConstant * Math.exp(-.5 * x * x) / sigma;
-  };
+    return gaussianConstant * Math.exp(-0.5 * x * x) / sigma;
+  }
 
-}
+};
 
 module.exports = normalDistribution;

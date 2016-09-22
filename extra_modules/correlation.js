@@ -2,7 +2,7 @@ var correlation = function() {
 
   var margin = { top: 30, right: 45, bottom: 30, left: 45 },
     width = (d3.select('.page-content')[0][0].offsetWidth - 42) - margin.left - margin.right,
-    height = (d3.select('.page-content')[0][0].offsetWidth - 42) * .75 - margin.top - margin.bottom,
+    height = (d3.select('.page-content')[0][0].offsetWidth - 42) * 0.75 - margin.top - margin.bottom,
     data = d3.range(100).map( function(i) { return { A: d3.random.normal(10, 3)(), B: d3.random.normal(10, 3)() }; }),
     varA = data.map(function(d){ return d.A; }),
     varB = data.map(function(d){ return d.B; }),
@@ -66,6 +66,6 @@ var correlation = function() {
     .attr("cx", function(d) { return x(d.A); })
     .attr("cy", function(d) { return y(d.B); });
 
-}
+};
 
 module.exports = correlation;
