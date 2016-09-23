@@ -1,5 +1,3 @@
-'use strict';
-
 var ss = require('simple-statistics');
 
 var simpleDataset = d3.range(15).map(function(i) {

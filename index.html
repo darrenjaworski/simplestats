@@ -89,7 +89,7 @@
           <p>Moving upwards we encounter the "box", with the median value displayed on the right, and the 25th and 75th quartile values displayed on the left. As you might infer from the last sentence, each line in the plot divides a quartile. From the bottom whisker to the bottom line of the box representing 25% of the data values.</p>
 
           <h3>normal distribution</h3>
-          <p>What is a normal distribution? Consider the hypothetical results of a biochemistry midterm exam below. Shown as a histogram with text scores 0-100 fitting into vertical bars. The higher the bar the more test scores were in that range of scores.</p>
+          <p>What is a normal distribution? Consider the hypothetical results of a biochemistry midterm exam below. Shown as a histogram with test scores 0-100 fitting into vertical bars. The higher the bar the more test scores were in that range of scores.</p>
           <p>
             <label class="normal-dist-label" for="numberOfPoints">number of scores on the exam: <span>50</span></label>
             <input id="normalPoints" class="mdl-slider mdl-js-slider" type="range" min="10" max="300" value="50" tabindex="0" name="numberOfPoints"/>
@@ -102,9 +102,10 @@
             </label>
           </p>
 
-          <h3>q-q plots</h3>
-
           <h3>central limit theorem</h3>
+          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Pariatur ratione, praesentium eligendi voluptate velit totam quo dolorem dolorum deleniti dignissimos laborum beatae, sint doloribus dolore fuga? Ad impedit, accusamus id.</p>
+          <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facilis cumque deleniti a dolore error expedita quos vero nulla dolorem maxime sapiente suscipit soluta quasi fugiat temporibus, consectetur excepturi veniam quia.</p>
+          <svg class="central-limit-theorem"></svg>
 
         </section>
         <section id="sampling">
@@ -113,7 +114,7 @@
 
           <h3>simple random sampling</h3>
           <p>Let's start with a sample population of circles. <span class="green-sample">Green</span> circles. <span class="red-sample">Red</span> circles. And <span class="blue-sample">blue</span> circles. How about a nice population size of <span class="sample-population"></span>.</p>
-          <p>Once you're happy with our population. Click the switch to take a sample from the population. In this case we'll start with a <strong>simple random sample</strong>. Which means each circle has an equal chance to be selected and can only be selected only once, which is referred to as sampling without replacement.</p>
+          <p>Once you're happy with our population. Click the button next to <strong>simple random</strong> below to take a sample from the population. In this case we'll start with a <strong>simple random sample</strong>. Which means each circle has an equal chance to be selected and can only be selected only once, which is referred to as sampling without replacement.</p>
           <svg class="sampling-population"></svg>
           <p>
             <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="population">
@@ -136,7 +137,7 @@
           <p>The first thing you'll notice when playing with the sample size is just how much your representation of each color can vary from sample to sample. Intuitively, the larger your sample size the more likely the sample is to be a closer approximation to the population and thus representative.</p>
 
           <h3>stratified random sampling</h3>
-          <p>Next try pressing the <strong>stratified random</strong> input. Notice anything different? In this case the sample is divided by color, which is our strata, or layers. Once we have divided our population into strata we can then take a simple random sample from each strata that is proportional to their representation in the population. For instance, if blue was 20% of the population and our sample size was 50, we would take a simple random sample of 10 blue circles.</p>
+          <p>Next try pressing the <strong>stratified random</strong> button. Notice anything different? In this case the sample is divided by color, which is our strata, or layers. Once we have divided our population into strata we can then take a simple random sample from each strata that is proportional to their representation in the population. For instance, if blue was 20% of the population and our sample size was 50, we would take a simple random sample of 10 blue circles.</p>
 
         </section>
         <section id="inferential-statistics">
@@ -162,6 +163,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/simple-statistics/1.0.0/simple_statistics.min.js"></script>
 
   <!-- page script -->
-  <script src="bundle.js"></script>
+  <script type="text/javascript" src="bundle.js"  charset="utf-8"></script>
 </body>
 </html>
